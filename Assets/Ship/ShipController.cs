@@ -8,9 +8,26 @@ public class ShipController : MonoBehaviour, ISpaceship
     private List<IPassenger> mCharactersOnboard = new List<IPassenger>();
     // Janky reference to player character to start us off
     [SerializeField] PlayerController mPlayerCharacter;
-
+    
     // Rigidbody reference
     Rigidbody2D mRigidbody;
+
+    // Player input to steer ship
+    private PlayerInput mPlayerControls;
+    Vector2 mShipMoveInput;
+
+    private void Awake()
+    {
+        // Load control scheme
+        mPlayerControls = new PlayerInput();
+
+        mPlayerControls.Player.Move.performed += ctx => mShipMoveInput = ctx.ReadValue<Vector2>();
+        mPlayerControls.Player.Move.canceled += ctx => mShipMoveInput = Vector2.zero;
+        // Dont enable player controls until player takes control
+
+    }
+
+
 
     // Player boards the ship
     public void AddToCharactersOnBoard(IPassenger _Character)
@@ -79,5 +96,11 @@ public class ShipController : MonoBehaviour, ISpaceship
     void Update()
     {
         
+    }
+
+    public void PassengerDriveShip(IPassenger _Character)
+    {
+        mPlayerControls.Enable();
+        _Character.OnPossessShip(this);
     }
 }

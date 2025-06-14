@@ -10,6 +10,7 @@ public interface ISpaceship
     public Vector2 GetPosition();
     public GameObject GetShip();
     public string GetShipName();
+    public void PassengerDriveShip(IPassenger _Character);
 }
 
 public interface IPassenger
@@ -18,4 +19,6 @@ public interface IPassenger
     public void DisembarkShip();
     public ISpaceship GetBoardedShip();
     public string GetName();
+    
+    public void OnPossessShip(ISpaceship _Ship);
 }

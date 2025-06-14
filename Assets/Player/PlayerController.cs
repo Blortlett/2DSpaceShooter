@@ -20,13 +20,12 @@ public class PlayerController : MonoBehaviour, IPassenger
 
     // Current Ship Data
     bool IsAboardShip;
+    bool mIsDrivingShip;
     private ISpaceship mCurrentBoardedSpaceship;
     private Vector2 mPositionInsideShip;
 
     // World Position
     private Vector2 mWorldPostion;
-
-    [SerializeField] private Camera mPlayerCamera;
 
     private void Awake()
     {
@@ -51,7 +50,6 @@ public class PlayerController : MonoBehaviour, IPassenger
     // Input n that
     private void Update()
     {
-        UpdateCamera();
         RotateCharacter();
         UpdatePlayerPosition();
         MoveInput();
@@ -109,20 +107,16 @@ public class PlayerController : MonoBehaviour, IPassenger
         transform.rotation = Quaternion.Euler(0f, 0f, angle);
     }
 
-    void UpdateCamera()
-    {
-        Vector3 NewPosition = new Vector3(mWorldPostion.x, mWorldPostion.y, mPlayerCamera.transform.position.z);
-        mPlayerCamera.transform.position = NewPosition;
-    }
-
     public void BoardShip(ISpaceship _Ship)
     {
         mCurrentBoardedSpaceship = _Ship;
+        IsAboardShip = true;
     }
 
     public void DisembarkShip()
     {
         mCurrentBoardedSpaceship = null;
+        IsAboardShip = false;
     }
 
     public ISpaceship GetBoardedShip()
@@ -133,5 +127,10 @@ public class PlayerController : MonoBehaviour, IPassenger
     public string GetName()
     {
         return gameObject.name;
+    }
+
+    public void OnPossessShip(ISpaceship _Ship)
+    {
+        mIsDrivingShip = true;
     }
 }
