@@ -1,6 +1,7 @@
-using UnityEditor.ShaderGraph;
+using System;
+using System.Collections.Generic;
+using Cinemachine;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour, IPassenger
 {
@@ -8,6 +9,9 @@ public class PlayerController : MonoBehaviour, IPassenger
     [SerializeField] float PLAYER_ACCELERATION = 5f;
     [SerializeField] float PLAYER_MAXSPEED = 1f;
     [SerializeField] float PLAYER_DRAG = 0.9f;
+
+    // PlayerCamera reference
+    [SerializeField] CinemachineVirtualCamera mPlayerCamera;
 
     // Inputs
     private PlayerInput mPlayerControls;
@@ -26,6 +30,9 @@ public class PlayerController : MonoBehaviour, IPassenger
 
     // World Position
     private Vector2 mWorldPostion;
+
+    // Latest interactable nearby player
+    private List<IInteractable> mInteractablesNearby = new List<IInteractable>();
 
     private void Awake()
     {
@@ -53,6 +60,17 @@ public class PlayerController : MonoBehaviour, IPassenger
         RotateCharacter();
         UpdatePlayerPosition();
         MoveInput();
+        HandleInteract();
+        UpdateCamera();
+    }
+
+    private void UpdateCamera()
+    {
+        // Get the ship's Z rotation in radians
+        float zRotation = mCurrentBoardedSpaceship.GetZRotation();
+
+        // Convert to a quaternion (rotate around Z-axis)
+        mPlayerCamera.m_Lens.Dutch = zRotation;
     }
 
     // Physics stuff
@@ -79,16 +97,32 @@ public class PlayerController : MonoBehaviour, IPassenger
 
     void MoveInsideShip()
     {
-        // Apply velocity to character when inside ship
-        mPositionInsideShip += mVelocity;
-        Debug.Log("Player's currently boarded ship:" + mCurrentBoardedSpaceship.GetShipName());
-        // Calculate world position
-        mWorldPostion = mCurrentBoardedSpaceship.GetPosition() + mPositionInsideShip;
-        
+        // Get the ship's Z rotation in radians
+        float zRotation = Mathf.Deg2Rad * mCurrentBoardedSpaceship.GetZRotation();
+
+        // Rotate the character's velocity to align with the ship's orientation
+        Vector2 rotatedVelocity;
+        rotatedVelocity.x = mVelocity.x * Mathf.Cos(zRotation) - mVelocity.y * Mathf.Sin(zRotation);
+        rotatedVelocity.y = mVelocity.x * Mathf.Sin(zRotation) + mVelocity.y * Mathf.Cos(zRotation);
+
+        // Apply rotated velocity to character position inside ship
+        mPositionInsideShip += rotatedVelocity * Time.fixedDeltaTime;
     }
 
     void UpdatePlayerPosition()
     {
+        // Get the ship's Z rotation in radians
+        float zRotation = Mathf.Deg2Rad * mCurrentBoardedSpaceship.GetZRotation();
+
+        // Rotate mPositionInsideShip by ship's zRotation
+        Vector2 RealShipPosition;
+        RealShipPosition.x = mPositionInsideShip.x * Mathf.Cos(zRotation) - mPositionInsideShip.y * Mathf.Sin(zRotation);
+        RealShipPosition.y = mPositionInsideShip.x * Mathf.Sin(zRotation) + mPositionInsideShip.y * Mathf.Cos(zRotation);
+
+        // Calculate world position
+        mWorldPostion = mCurrentBoardedSpaceship.GetPosition() + RealShipPosition;
+
+        // Set game object to world position
         transform.position = mWorldPostion;
     }
 
@@ -105,6 +139,18 @@ public class PlayerController : MonoBehaviour, IPassenger
 
         // Apply rotation around Z-axis (for 2D top-down)
         transform.rotation = Quaternion.Euler(0f, 0f, angle);
+    }
+
+    private void HandleInteract()
+    {
+        // Only when player is interacting
+        if (!mIsInteracting) return;
+
+        // only if there are items nearby
+        if (mInteractablesNearby.Count > 0)
+        {   // interact with first item on list
+            mInteractablesNearby[0].OnInteract(this);
+        }
     }
 
     public void BoardShip(ISpaceship _Ship)
@@ -132,5 +178,31 @@ public class PlayerController : MonoBehaviour, IPassenger
     public void OnPossessShip(ISpaceship _Ship)
     {
         mIsDrivingShip = true;
+        mPlayerControls.Disable();
+    }
+
+    public void StopDrivingShip()
+    {
+        mIsInteracting = false;
+        mIsDrivingShip = false;
+        mPlayerControls.Enable();
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        IInteractable interactable = collision.GetComponent<IInteractable>();
+        if (interactable != null)
+        {
+            mInteractablesNearby.Add(interactable);
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        IInteractable interactable = collision.GetComponent<IInteractable>();
+        if (interactable != null)
+        {
+            mInteractablesNearby.Remove(interactable);
+        }
     }
 }
