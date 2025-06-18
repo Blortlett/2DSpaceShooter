@@ -58,10 +58,10 @@ public class PlayerController : MonoBehaviour, IPassenger
     private void Update()
     {
         RotateCharacter();
-        UpdatePlayerPosition();
         MoveInput();
         HandleInteract();
         UpdateCamera();
+        UpdatePlayerPosition();
     }
 
     private void UpdateCamera()
