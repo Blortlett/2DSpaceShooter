@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Cinemachine;
 using UnityEngine;
 
-public class scr_ControlStation : MonoBehaviour, IInteractable
+public class ControlStation : MonoBehaviour, IInteractable
 {
     private ISpaceship mParentShip;
 
@@ -12,7 +12,7 @@ public class scr_ControlStation : MonoBehaviour, IInteractable
         return true;
     }
 
-    public void OnInteract(PlayerController _Character)
+    public void OnInteract(cCharacterController _Character)
     {
         _Character.OnPossessShip(mParentShip);
         mParentShip.PassengerDriveShip(_Character);

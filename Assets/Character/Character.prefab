@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3149605269811245242}
-  - component: {fileID: 2547831638942677509}
   - component: {fileID: 7797065535336028439}
   - component: {fileID: 5348948442804911828}
   - component: {fileID: 455101134632227950}
@@ -36,36 +35,6 @@ Transform:
   - {fileID: 6538575517416243735}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2547831638942677509
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 676241355349440248}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Actions: {fileID: -944628639613478452, guid: 5921907790f723a45bd2392a81cb9201, type: 3}
-  m_NotificationBehavior: 3
-  m_UIInputModule: {fileID: 0}
-  m_DeviceLostEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_DeviceRegainedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ControlsChangedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ActionEvents: []
-  m_NeverAutoSwitchControlSchemes: 0
-  m_DefaultControlScheme: 
-  m_DefaultActionMap: Player
-  m_SplitScreenIndex: -1
-  m_Camera: {fileID: 0}
 --- !u!50 &7797065535336028439
 Rigidbody2D:
   serializedVersion: 4
@@ -105,10 +74,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe29f15f3b0260b4c9956b2cc22b868a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PLAYER_ACCELERATION: 40
-  PLAYER_MAXSPEED: 40
-  PLAYER_DRAG: 0.0001
-  mPlayerCamera: {fileID: 0}
+  CHARACTER_ACCELERATION: 50
+  CHARACTER_MAXSPEED: 2
+  CHARACTER_DRAG: 0.0001
 --- !u!58 &455101134632227950
 CircleCollider2D:
   m_ObjectHideFlags: 0

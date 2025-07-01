@@ -13,8 +13,8 @@ public class ShipController : MonoBehaviour, ISpaceship
 
     // Official passenger list
     private List<IPassenger> mCharactersOnboard = new List<IPassenger>();
-    // Janky reference to player character to start us off
-    [SerializeField] PlayerController mPlayerCharacter;
+    // Janky reference to character characters on board to start us off
+    [SerializeField] cCharacterController[] mCharactersToStartBoarded;
     
     // Rigidbody reference
     Rigidbody2D mRigidbody;
@@ -91,6 +91,8 @@ public class ShipController : MonoBehaviour, ISpaceship
         }
     }
 
+    
+
     // Start is called before the first frame update
     void Start()
     {
@@ -98,9 +100,12 @@ public class ShipController : MonoBehaviour, ISpaceship
         mRigidbody = GetComponent<Rigidbody2D>();
         // set spaceship off soaring!
         mRigidbody.velocity = new Vector2(5, 0);
-        // Add player to passengerlist
-        AddToCharactersOnBoard(mPlayerCharacter);
-        
+
+        // Add characters to passengerlist
+        foreach (cCharacterController character in mCharactersToStartBoarded)
+        {
+            AddToCharactersOnBoard(character);
+        }
     }
 
     private void Update()
@@ -146,7 +151,7 @@ public class ShipController : MonoBehaviour, ISpaceship
     public void RemoveDriver()
     {
         mPlayerControls.Disable();
-        mPlayerCharacter.StopDrivingShip();
+        mCharactersToStartBoarded[0].StopDrivingShip();    // Janky player reference... player must be first character on board
         mIsDriving = false;
         mShipCamera.Priority = 9;
     }

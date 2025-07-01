@@ -1,0 +1,82 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using Cinemachine;
+using UnityEngine;
+
+public class cPlayerController : MonoBehaviour
+{
+    private cCharacterController mCharacterController;
+
+    // Player Inputs
+    private PlayerInput mPlayerControls;
+    private Vector2 mMoveInput;
+    private Vector2 mMousePosition;
+    private bool mIsInteracting;
+
+    // PlayerCamera reference
+    [SerializeField] CinemachineVirtualCamera mPlayerCamera;
+
+    // Set up input on awake
+    private void Awake()
+    {
+        // Get controller component
+        mPlayerControls = new PlayerInput();
+        // Subscribe vars to input Events
+        mPlayerControls.Player.Move.performed += ctx => mMoveInput = ctx.ReadValue<Vector2>();
+        mPlayerControls.Player.Move.canceled += ctx => mMoveInput = Vector2.zero;
+        mPlayerControls.Player.Look.performed += ctx => mMousePosition = ctx.ReadValue<Vector2>();
+        mPlayerControls.Player.Interact.performed += ctx => mIsInteracting = true;
+        // Enable input capture
+        mPlayerControls.Player.Enable();
+    }
+
+    private void Start()
+    {
+        // Get attatched character controller
+        mCharacterController = GetComponent<cCharacterController>();
+        // Subscribe to charController events
+        mCharacterController.OnStartDrivingShip += CharacterController_OnStartDrivingShip;
+        mCharacterController.OnStopDrivingShip += CharacterController_OnStopDrivingShip;
+    }
+
+    private void UpdateCamera()
+    {
+        // Get the ship's Z rotation in radians
+        float zRotation = mCharacterController.GetBoardedShip().GetZRotation();
+
+        // Convert to a quaternion (rotate around Z-axis)
+        mPlayerCamera.m_Lens.Dutch = zRotation;
+    }
+
+    private void Update()
+    {
+        UpdateCamera();
+        MoveInput();
+        HandleInteract();
+    }
+
+    private void HandleInteract()
+    {
+        // If interacting... trigger characterController to interact
+        if (mIsInteracting)
+            mCharacterController.HandleInteract();
+    }
+
+    void MoveInput()
+    {
+        // Send input to the character controller
+        mCharacterController.MoveInput(mMoveInput);
+        mCharacterController.RotateCharacter(mMousePosition);
+    }
+
+    private void CharacterController_OnStopDrivingShip(object sender, EventArgs e)
+    {
+        mPlayerControls.Enable();
+    }
+
+    private void CharacterController_OnStartDrivingShip(object sender, EventArgs e)
+    {
+        mPlayerControls.Disable();
+    }
+}

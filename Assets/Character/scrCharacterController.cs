@@ -3,23 +3,18 @@ using System.Collections.Generic;
 using Cinemachine;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour, IPassenger
+public class cCharacterController : MonoBehaviour, IPassenger
 {
     // Constant values
-    [SerializeField] float PLAYER_ACCELERATION = 5f;
-    [SerializeField] float PLAYER_MAXSPEED = 1f;
-    [SerializeField] float PLAYER_DRAG = 0.9f;
+    [SerializeField] float CHARACTER_ACCELERATION = 5f;
+    [SerializeField] float CHARACTER_MAXSPEED = 1f;
+    [SerializeField] float CHARACTER_DRAG = 0.9f;
 
-    // PlayerCamera reference
-    [SerializeField] CinemachineVirtualCamera mPlayerCamera;
+    // Events
+    public event EventHandler OnStartDrivingShip;
+    public event EventHandler OnStopDrivingShip;
 
-    // Inputs
-    private PlayerInput mPlayerControls;
-    private Vector2 mMoveInput;
-    private Vector2 mMousePosition;
-    private bool mIsInteracting;
-
-    // Player physics
+    // Character physics
     private Vector2 mVelocity;
     private Rigidbody2D mRigidBody;
 
@@ -39,19 +34,7 @@ public class PlayerController : MonoBehaviour, IPassenger
     // Latest interactable nearby player
     private List<IInteractable> mInteractablesNearby = new List<IInteractable>();
 
-    private void Awake()
-    {
-        // Get controller component
-        mPlayerControls = new PlayerInput();
-
-        // Subscribe vars to input Events
-        mPlayerControls.Player.Move.performed += ctx => mMoveInput = ctx.ReadValue<Vector2>();
-        mPlayerControls.Player.Move.canceled += ctx => mMoveInput = Vector2.zero;
-        mPlayerControls.Player.Look.performed += ctx => mMousePosition = ctx.ReadValue<Vector2>();
-        mPlayerControls.Player.Interact.performed += ctx => mIsInteracting = true;
-
-        mPlayerControls.Player.Enable();
-    }
+   
 
     // Start is called before the first frame update
     void Start()
@@ -62,20 +45,8 @@ public class PlayerController : MonoBehaviour, IPassenger
     // Input n that
     private void Update()
     {
-        RotateCharacter();
-        MoveInput();
         HandleInteract();
-        UpdateCamera();
         UpdatePlayerPosition();
-    }
-
-    private void UpdateCamera()
-    {
-        // Get the ship's Z rotation in radians
-        float zRotation = mCurrentBoardedSpaceship.GetZRotation();
-
-        // Convert to a quaternion (rotate around Z-axis)
-        mPlayerCamera.m_Lens.Dutch = zRotation;
     }
 
     // Physics stuff
@@ -84,19 +55,21 @@ public class PlayerController : MonoBehaviour, IPassenger
         MoveInsideShip();
     }
 
-    void MoveInput()
+    // Called from the controller - (Enemy, Player or NeutralNPC)
+    // Takes in a normalized vector 2 and calculates player movement
+    public void MoveInput(Vector2 _NormalizedInput)
     {
         // Apply acceleration
-        Vector2 AddVelocity = mMoveInput * PLAYER_ACCELERATION;
+        Vector2 AddVelocity = _NormalizedInput * CHARACTER_ACCELERATION;
         mVelocity += AddVelocity * Time.deltaTime;
 
         // Apply drag
-        mVelocity *= Mathf.Pow(PLAYER_DRAG, Time.deltaTime);
+        mVelocity *= Mathf.Pow(CHARACTER_DRAG, Time.deltaTime);
 
         // Clamp max velocity
-        if (mVelocity.magnitude > PLAYER_MAXSPEED)
+        if (mVelocity.magnitude > CHARACTER_MAXSPEED)
         {
-            mVelocity = mVelocity.normalized * PLAYER_MAXSPEED;
+            mVelocity = mVelocity.normalized * CHARACTER_MAXSPEED;
         }
     }
 
@@ -134,10 +107,10 @@ public class PlayerController : MonoBehaviour, IPassenger
         mRigidBody.position = mWorldPostion;
     }
 
-    void RotateCharacter()
+    public void RotateCharacter(Vector2 _LookAtPosition)
     {
         // Convert mouse screen position to world position in 2D
-        Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(mMousePosition);
+        Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(_LookAtPosition);
 
         // Calculate direction from player to mouse
         Vector2 direction = mouseWorldPos - (Vector2)transform.position;
@@ -149,11 +122,8 @@ public class PlayerController : MonoBehaviour, IPassenger
         transform.rotation = Quaternion.Euler(0f, 0f, angle);
     }
 
-    private void HandleInteract()
+    public void HandleInteract()
     {
-        // Only when player is interacting
-        if (!mIsInteracting) return;
-
         // only if there are items nearby
         if (mInteractablesNearby.Count > 0)
         {   // interact with first item on list
@@ -186,14 +156,13 @@ public class PlayerController : MonoBehaviour, IPassenger
     public void OnPossessShip(ISpaceship _Ship)
     {
         mIsDrivingShip = true;
-        mPlayerControls.Disable();
+        OnStopDrivingShip?.Invoke(this, EventArgs.Empty);
     }
 
     public void StopDrivingShip()
     {
-        mIsInteracting = false;
         mIsDrivingShip = false;
-        mPlayerControls.Enable();
+        OnStartDrivingShip?.Invoke(this, EventArgs.Empty);
     }
 
     Vector2 GetAllowedMovement(Vector2 vel)
