@@ -41,14 +41,17 @@ public class EnemyCharacter : MonoBehaviour
             }
         }
 
-        // Execute patrol logic
+        // Execute patrol move logic
         if (mIsPatrolling)
         {   // Enemy Walking
             mCharacterController.MoveInput(mInputDirection);
+            mCharacterController.RotateCharacter(mCharacterController.GetPosition() + mInputDirection * 5);
         }
         else
         {   // Enemy Waiting
             mCharacterController.MoveInput(Vector2.zero);
         }
+
+
     }
 }

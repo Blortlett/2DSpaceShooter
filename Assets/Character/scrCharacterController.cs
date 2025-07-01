@@ -244,4 +244,7 @@ public class cCharacterController : MonoBehaviour, IPassenger
             mIsCollidingWithWall = false;
         }
     }
+
+    // -= Getters =-
+    public Vector2 GetPosition() { return transform.position; }
 }
