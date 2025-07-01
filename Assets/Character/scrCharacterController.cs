@@ -45,7 +45,7 @@ public class cCharacterController : MonoBehaviour, IPassenger
     // Input n that
     private void Update()
     {
-        HandleInteract();
+        //HandleInteract();
         UpdatePlayerPosition();
     }
 
@@ -244,6 +244,8 @@ public class cCharacterController : MonoBehaviour, IPassenger
             mIsCollidingWithWall = false;
         }
     }
+
+    // -= Setters =-
 
     // -= Getters =-
     public Vector2 GetPosition() { return transform.position; }

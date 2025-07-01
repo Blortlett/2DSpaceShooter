@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.TextCore.Text;
 
 
-public class ShipController : MonoBehaviour, ISpaceship
+public class cShipController : MonoBehaviour, ISpaceship
 {
     [SerializeField] private float SHIP_ACCELERATION = 10f;
     [SerializeField] private float SHIP_ANGULAR_ACCELERATION = 3f;
@@ -25,6 +25,11 @@ public class ShipController : MonoBehaviour, ISpaceship
     bool mDriverIsExiting;
 
     bool mIsDriving = false;
+
+    // Boarding hatch list
+    private bool mHasBoardingHatch = false;
+    private Vector2 mBoardingHatchLocalPosition;
+    private List<cBoardingHatch> mBoardingHatchList = new List<cBoardingHatch>();
 
     private void Awake()
     {
@@ -156,6 +161,19 @@ public class ShipController : MonoBehaviour, ISpaceship
         mShipCamera.Priority = 9;
     }
 
+    // -= Setters =-
+    public void AddBoardingHatch(cBoardingHatch _BoardingHatch)
+    {
+        if (_BoardingHatch == null) return; // check valid
+        // Add to list
+        mBoardingHatchList.Add(_BoardingHatch);
+        // Set local position
+        mBoardingHatchLocalPosition = _BoardingHatch.transform.position - transform.position;
+
+        Debug.Log("Added hatch to ship");
+    }
+
+    // -= Getters =-
     public float GetZRotation()
     {
         float rotationRadians = transform.eulerAngles.z;
