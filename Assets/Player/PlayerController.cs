@@ -21,6 +21,11 @@ public class PlayerController : MonoBehaviour, IPassenger
 
     // Player physics
     private Vector2 mVelocity;
+    private Rigidbody2D mRigidBody;
+
+    // Wall collisions
+    private bool mIsCollidingWithWall = false;
+    private Vector2 mWallNormal;
 
     // Current Ship Data
     bool IsAboardShip;
@@ -51,7 +56,7 @@ public class PlayerController : MonoBehaviour, IPassenger
     // Start is called before the first frame update
     void Start()
     {
-        
+        mRigidBody = GetComponent<Rigidbody2D>();
     }
 
     // Input n that
@@ -97,13 +102,16 @@ public class PlayerController : MonoBehaviour, IPassenger
 
     void MoveInsideShip()
     {
+        // Get allowed velocity (handles wall collision)
+        Vector2 allowedVelocity = GetAllowedMovement(mVelocity);
+
         // Get the ship's Z rotation in radians
         float zRotation = Mathf.Deg2Rad * mCurrentBoardedSpaceship.GetZRotation();
 
-        // Rotate the character's velocity to align with the ship's orientation
+        // Rotate the allowed velocity to align with the ship's orientation
         Vector2 rotatedVelocity;
-        rotatedVelocity.x = mVelocity.x * Mathf.Cos(zRotation) - mVelocity.y * Mathf.Sin(zRotation);
-        rotatedVelocity.y = mVelocity.x * Mathf.Sin(zRotation) + mVelocity.y * Mathf.Cos(zRotation);
+        rotatedVelocity.x = allowedVelocity.x * Mathf.Cos(zRotation) - allowedVelocity.y * Mathf.Sin(zRotation);
+        rotatedVelocity.y = allowedVelocity.x * Mathf.Sin(zRotation) + allowedVelocity.y * Mathf.Cos(zRotation);
 
         // Apply rotated velocity to character position inside ship
         mPositionInsideShip += rotatedVelocity * Time.fixedDeltaTime;
@@ -123,7 +131,7 @@ public class PlayerController : MonoBehaviour, IPassenger
         mWorldPostion = mCurrentBoardedSpaceship.GetPosition() + RealShipPosition;
 
         // Set game object to world position
-        transform.position = mWorldPostion;
+        mRigidBody.position = mWorldPostion;
     }
 
     void RotateCharacter()
@@ -188,6 +196,27 @@ public class PlayerController : MonoBehaviour, IPassenger
         mPlayerControls.Enable();
     }
 
+    Vector2 GetAllowedMovement(Vector2 vel)
+    {
+        if (!mIsCollidingWithWall)
+            return vel; // No collision, allow full movement
+
+        // Calculate dot product
+        float dot = Vector2.Dot(vel, mWallNormal);
+
+        // If dot product is positive, movement is toward the wall
+        if (dot > 0)
+        {
+            // Project velocity onto the plane perpendicular to the wall normal (sliding)
+            Vector2 wallTangent = new Vector2(-mWallNormal.y, mWallNormal.x); // Perpendicular to normal
+            float tangentComponent = Vector2.Dot(vel, wallTangent);
+            return wallTangent * tangentComponent; // Allow only the component along the wall
+        }
+
+        // Movement is parallel or away from the wall, allow it fully
+        return vel;
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         IInteractable interactable = collision.GetComponent<IInteractable>();
@@ -203,6 +232,47 @@ public class PlayerController : MonoBehaviour, IPassenger
         if (interactable != null)
         {
             mInteractablesNearby.Remove(interactable);
+        }
+    }
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        Debug.Log("Player touching wall!");
+        // Check if player is colliding with a wall
+        if (collision.gameObject.CompareTag("Wall"))
+        {
+            mIsCollidingWithWall = true;
+            // Get the normal of the contact point (average if multiple contacts)
+            mWallNormal = Vector2.zero;
+            foreach (ContactPoint2D contact in collision.contacts)
+            {
+                mWallNormal += contact.normal;
+            }
+            mWallNormal = mWallNormal.normalized;
+        }
+    }
+
+    void OnCollisionStay2D(Collision2D collision)
+    {
+        // Player still is colliding with a wall
+        if (collision.gameObject.CompareTag("Wall"))
+        {
+            // Update wall normal during continuous collision
+            mWallNormal = Vector2.zero;
+            foreach (ContactPoint2D contact in collision.contacts)
+            {
+                mWallNormal += contact.normal;
+            }
+            mWallNormal = mWallNormal.normalized;
+        }
+    }
+
+    void OnCollisionExit2D(Collision2D collision)
+    {
+        // Check if player stopped colliding with a wall
+        if (collision.gameObject.CompareTag("Wall"))
+        {
+            mIsCollidingWithWall = false;
         }
     }
 }
