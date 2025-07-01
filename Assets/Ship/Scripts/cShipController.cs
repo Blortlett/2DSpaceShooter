@@ -1,113 +1,70 @@
 using System.Collections.Generic;
 using Cinemachine;
+using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
-using UnityEngine.TextCore.Text;
-
 
 public class cShipController : MonoBehaviour, ISpaceship
 {
-    [SerializeField] private float SHIP_ACCELERATION = 10f;
-    [SerializeField] private float SHIP_ANGULAR_ACCELERATION = 3f;
+    [Header("Ship Properties")]
+    [SerializeField] private float shipAcceleration = 10f;
+    [SerializeField] private float shipAngularAcceleration = 3f;
 
-    [SerializeField] private CinemachineVirtualCamera mShipCamera;
+    [Header("Camera")]
+    [SerializeField] private CinemachineVirtualCamera shipCamera;
 
-    // Official passenger list
-    private List<IPassenger> mCharactersOnboard = new List<IPassenger>();
-    // Janky reference to character characters on board to start us off
-    [SerializeField] cCharacterController[] mCharactersToStartBoarded;
-    
-    // Rigidbody reference
-    Rigidbody2D mRigidbody;
+    [Header("Starting Crew")]
+    [SerializeField] private cCharacterController[] charactersToStartBoarded;
 
-    // Player input to steer ship
-    private PlayerInput mPlayerControls;
-    Vector2 mShipMoveInput;
-    bool mDriverIsExiting;
+    // Properties for state system access
+    public float ShipAcceleration => shipAcceleration;
+    public float ShipAngularAcceleration => shipAngularAcceleration;
+    public Rigidbody2D Rigidbody { get; private set; }
 
-    bool mIsDriving = false;
+    // Movement state system
+    private ShipMovementStateMachine movementStateMachine;
+    private PlayerDriveState playerDriveState;
+    private MoveTowardsTargetState moveTowardsTargetState;
+    private MatchSpeedState matchSpeedState;
+    private FullThrottleState fullThrottleState;
 
-    // Boarding hatch list
-    private bool mHasBoardingHatch = false;
-    private Vector2 mBoardingHatchLocalPosition;
-    private List<cBoardingHatch> mBoardingHatchList = new List<cBoardingHatch>();
+    // Passenger management
+    private List<IPassenger> charactersOnboard = new List<IPassenger>();
+
+    // Player input
+    private PlayerInput playerControls;
+    private Vector2 shipMoveInput;
+    private bool driverIsExiting;
+    private IPassenger currentDriver;
+
+    // Boarding system
+    private Vector2 boardingHatchLocalPosition;
+    private List<cBoardingHatch> boardingHatchList = new List<cBoardingHatch>();
+
+    // Combat
+    [SerializeField] private cShipController combatTarget = null;
+
+    #region Unity Lifecycle
 
     private void Awake()
     {
-        // Load control scheme
-        mPlayerControls = new PlayerInput();
-        // Handle thrust/yaw player input
-        mPlayerControls.DriveShip.Move.performed += ctx => mShipMoveInput = ctx.ReadValue<Vector2>();
-        mPlayerControls.DriveShip.Move.canceled += ctx => mShipMoveInput = Vector2.zero;
-        // Handle interact input
-        mPlayerControls.DriveShip.StopDriving.performed += ctx => mDriverIsExiting = true;
-        mPlayerControls.DriveShip.StopDriving.canceled += ctx => mDriverIsExiting = false;
+        InitializeInput();
+        Rigidbody = GetComponent<Rigidbody2D>();
+
+        // Initialize state system
+        movementStateMachine = new ShipMovementStateMachine(this);
+        playerDriveState = new PlayerDriveState();
+        moveTowardsTargetState = new MoveTowardsTargetState();
+        matchSpeedState = new MatchSpeedState();
+        fullThrottleState = new FullThrottleState();
     }
 
-
-
-    // Player boards the ship
-    public void AddToCharactersOnBoard(IPassenger _Character)
+    private void Start()
     {
-        if (_Character != null)
-        {
-            mCharactersOnboard.Add(_Character);
-            _Character.BoardShip(this);
-            Debug.Log($"Added {_Character.GetName()} to the ship. Total onboard: {mCharactersOnboard.Count}");
-        }
-        else
-        {
-            Debug.LogWarning("Attempted to add a null character to the ship.");
-        }
-    }
+        // Set initial velocity
+        Rigidbody.velocity = new Vector2(5, 0);
 
-    // Return all characters aboard
-    public List<IPassenger> GetCharactersOnboard()
-    {
-        return mCharactersOnboard;
-    }
-
-    public Vector2 GetPosition()
-    {
-        return transform.position;
-    }
-
-    public GameObject GetShip()
-    {
-        return gameObject;
-    }
-
-    public string GetShipName()
-    {
-        return gameObject.name;
-    }
-
-    // Player has left the ship
-    public void PlayerDisembark(IPassenger _Character)
-    {
-        if (_Character != null && mCharactersOnboard.Contains(_Character))
-        {
-            mCharactersOnboard.Remove(_Character);
-            _Character.DisembarkShip();
-            Debug.Log($"Removed {_Character.GetName()} from the ship. Total onboard: {mCharactersOnboard.Count}");
-        }
-        else
-        {
-            Debug.LogWarning("Character not found on the ship or is null.");
-        }
-    }
-
-    
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        // Get ship rigidbody
-        mRigidbody = GetComponent<Rigidbody2D>();
-        // set spaceship off soaring!
-        mRigidbody.velocity = new Vector2(5, 0);
-
-        // Add characters to passengerlist
-        foreach (cCharacterController character in mCharactersToStartBoarded)
+        // Add starting characters
+        foreach (cCharacterController character in charactersToStartBoarded)
         {
             AddToCharactersOnBoard(character);
         }
@@ -115,68 +72,181 @@ public class cShipController : MonoBehaviour, ISpaceship
 
     private void Update()
     {
-        if (mDriverIsExiting)
+        HandleDriverExit();
+    }
+
+    private void FixedUpdate()
+    {
+        // Update movement state machine
+        movementStateMachine.Update();
+    }
+
+    #endregion
+
+    #region Input Handling
+
+    private void InitializeInput()
+    {
+        playerControls = new PlayerInput();
+        playerControls.DriveShip.Move.performed += ctx => OnMoveInputChanged(ctx.ReadValue<Vector2>());
+        playerControls.DriveShip.Move.canceled += ctx => OnMoveInputChanged(Vector2.zero);
+        playerControls.DriveShip.StopDriving.performed += ctx => driverIsExiting = true;
+        playerControls.DriveShip.StopDriving.canceled += ctx => driverIsExiting = false;
+    }
+
+    private void OnMoveInputChanged(Vector2 input)
+    {
+        shipMoveInput = input;
+
+        // Update player drive state if it's current
+        if (movementStateMachine.GetCurrentState() is PlayerDriveState playerState)
+        {
+            playerState.SetMoveInput(shipMoveInput);
+        }
+    }
+
+    private void HandleDriverExit()
+    {
+        if (driverIsExiting && currentDriver != null)
         {
             RemoveDriver();
         }
     }
 
-    private void FixedUpdate()
+    #endregion
+
+    #region Passenger Management
+
+    public void AddToCharactersOnBoard(IPassenger character)
     {
-        if (mIsDriving)
+        if (character == null)
         {
-            // Move the ship according to driver input
-            UpdateThrust();
-            // Rotate ship according to driver input
-            UpdateYaw();
-            //UpdateCamera();
+            Debug.LogWarning("Attempted to add a null character to the ship.");
+            return;
         }
+
+        charactersOnboard.Add(character);
+        character.BoardShip(this);
+        Debug.Log($"Added {character.GetName()} to the ship. Total onboard: {charactersOnboard.Count}");
     }
 
-    private void UpdateThrust()
+    public void PlayerDisembark(IPassenger character)
     {
-        Vector2 ForceToAdd = new Vector2(mShipMoveInput.y * SHIP_ACCELERATION, 0);
-        mRigidbody.AddRelativeForce(ForceToAdd);
+        if (character == null || !charactersOnboard.Contains(character))
+        {
+            Debug.LogWarning("Character not found on the ship or is null.");
+            return;
+        }
+
+        charactersOnboard.Remove(character);
+        character.DisembarkShip();
+        Debug.Log($"Removed {character.GetName()} from the ship. Total onboard: {charactersOnboard.Count}");
     }
 
-    private void UpdateYaw()
-    {
-        float ForceToAdd = (mShipMoveInput.x * -1) * SHIP_ANGULAR_ACCELERATION;
-        mRigidbody.AddTorque(ForceToAdd);
-    }
+    public List<IPassenger> GetCharactersOnboard() => charactersOnboard;
 
-    public void PassengerDriveShip(IPassenger _Character)
+    #endregion
+
+    #region Driving System
+
+    public void PassengerDriveShip(IPassenger character)
     {
-        mPlayerControls.Enable();
-        _Character.OnPossessShip(this);
-        mIsDriving = true;
-        mShipCamera.Priority = 11;
+        if (character == null) return;
+
+        currentDriver = character;
+        playerControls.Enable();
+        character.OnPossessShip(this);
+
+        // Switch to player drive state
+        playerDriveState.SetMoveInput(shipMoveInput);
+        movementStateMachine.ChangeState(playerDriveState);
+
+        shipCamera.Priority = 11;
     }
 
     public void RemoveDriver()
     {
-        mPlayerControls.Disable();
-        mCharactersToStartBoarded[0].StopDrivingShip();    // Janky player reference... player must be first character on board
-        mIsDriving = false;
-        mShipCamera.Priority = 9;
+        if (currentDriver == null) return;
+
+        playerControls.Disable();
+        currentDriver.StopDrivingShip();
+        currentDriver = null;
+
+        // Switch to idle state
+        movementStateMachine.ChangeState(new IdleState());
+
+        shipCamera.Priority = 9;
+        driverIsExiting = false;
     }
 
-    // -= Setters =-
-    public void AddBoardingHatch(cBoardingHatch _BoardingHatch)
-    {
-        if (_BoardingHatch == null) return; // check valid
-        // Add to list
-        mBoardingHatchList.Add(_BoardingHatch);
-        // Set local position
-        mBoardingHatchLocalPosition = _BoardingHatch.transform.position - transform.position;
+    #endregion
 
+    #region Movement State Control (Public API)
+
+    public void SetMoveTowardsTarget(Transform target, float speed = 5f)
+    {
+        var moveState = new MoveTowardsTargetState();
+        moveState.SetTarget(target, speed);
+        movementStateMachine.ChangeState(moveState);
+    }
+
+    public void SetMatchSpeed(Rigidbody2D target, float force = 10f)
+    {
+        var matchState = new MatchSpeedState();
+        matchState.SetTarget(target, force);
+        movementStateMachine.ChangeState(matchState);
+    }
+
+    public void SetFullThrottle(Vector2 direction = default)
+    {
+        var throttleState = new FullThrottleState();
+        if (direction != Vector2.zero)
+        {
+            throttleState.SetDirection(direction);
+        }
+        movementStateMachine.ChangeState(throttleState);
+    }
+
+    public void SetIdle()
+    {
+        movementStateMachine.ChangeState(new IdleState());
+    }
+
+    #endregion
+
+    #region Boarding System
+
+    public void AddBoardingHatch(cBoardingHatch boardingHatch)
+    {
+        if (boardingHatch == null) return;
+
+        boardingHatchList.Add(boardingHatch);
+        boardingHatchLocalPosition = boardingHatch.transform.position - transform.position;
         Debug.Log("Added hatch to ship");
     }
 
-    // -= Getters =-
-    public float GetZRotation()
+    public Vector2 GetBoardingHatchPosition()
     {
-        float rotationRadians = transform.eulerAngles.z;
-        return rotationRadians;
+        return (Vector2)transform.position + boardingHatchLocalPosition;
     }
+
+    #endregion
+
+    #region ISpaceship Implementation
+
+    public Vector2 GetPosition() => transform.position;
+    public GameObject GetShip() => gameObject;
+    public string GetShipName() => gameObject.name;
+    public float GetZRotation() => transform.eulerAngles.z;
+
+    #endregion
+
+    #region Cleanup
+
+    private void OnDestroy()
+    {
+        playerControls?.Dispose();
+    }
+
+    #endregion
 }
