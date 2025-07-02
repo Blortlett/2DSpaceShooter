@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Cinemachine;
 using UnityEngine;
 
-public class ControlStation : MonoBehaviour, IInteractable
+public class cControlStation : MonoBehaviour, IInteractable
 {
     private ISpaceship mParentShip;
 

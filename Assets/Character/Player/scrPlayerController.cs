@@ -60,7 +60,10 @@ public class cPlayerController : MonoBehaviour
     {
         // If interacting... trigger characterController to interact
         if (mIsInteracting)
+        {
             mCharacterController.HandleInteract();
+            mIsInteracting = false;
+        }
     }
 
     void MoveInput()
@@ -72,11 +75,13 @@ public class cPlayerController : MonoBehaviour
 
     private void CharacterController_OnStopDrivingShip(object sender, EventArgs e)
     {
+        Debug.Log("Player Stopped driving ship... player controls enabled");
         mPlayerControls.Enable();
     }
 
     private void CharacterController_OnStartDrivingShip(object sender, EventArgs e)
     {
+        Debug.Log("Player started driving ship... player controls disabled");
         mPlayerControls.Disable();
     }
 }

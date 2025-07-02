@@ -156,13 +156,13 @@ public class cCharacterController : MonoBehaviour, IPassenger
     public void OnPossessShip(ISpaceship _Ship)
     {
         mIsDrivingShip = true;
-        OnStopDrivingShip?.Invoke(this, EventArgs.Empty);
+        OnStartDrivingShip?.Invoke(this, EventArgs.Empty);
     }
 
     public void StopDrivingShip()
     {
         mIsDrivingShip = false;
-        OnStartDrivingShip?.Invoke(this, EventArgs.Empty);
+        OnStopDrivingShip?.Invoke(this, EventArgs.Empty);
     }
 
     Vector2 GetAllowedMovement(Vector2 vel)
