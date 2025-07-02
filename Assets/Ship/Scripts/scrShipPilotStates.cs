@@ -44,13 +44,15 @@ public class PlayerDriveState : IShipMovementState
 public class MoveTowardsTargetState : IShipMovementState
 {
     private Transform target;
+    private Transform localShipHatchTransform;
     private float approachSpeed = 5f;
     private float rotationSpeed = 2f;
 
-    public void SetTarget(Transform targetTransform, float speed = 5f)
+    public void SetTarget(Transform targetTransform, Transform _localShipHatchTransform, float speed = 5f)
     {
         target = targetTransform;
         approachSpeed = speed;
+        localShipHatchTransform = _localShipHatchTransform;
     }
 
     public void Enter(cShipController ship)
@@ -62,10 +64,10 @@ public class MoveTowardsTargetState : IShipMovementState
     {
         if (target == null) return;
 
-        Vector2 directionToTarget = (target.position - ship.transform.position).normalized;
+        Vector2 directionToTarget = (target.position - localShipHatchTransform.position).normalized;
 
         // Calculate desired rotation
-        float targetAngle = Mathf.Atan2(directionToTarget.y, directionToTarget.x) * Mathf.Rad2Deg - 90f;
+        float targetAngle = target.transform.eulerAngles.z;
         float angleDifference = Mathf.DeltaAngle(ship.transform.eulerAngles.z, targetAngle);
 
         // Apply rotation towards target

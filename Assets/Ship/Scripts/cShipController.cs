@@ -34,6 +34,7 @@ public class cShipController : MonoBehaviour, ISpaceship
     private PlayerInput playerControls;
     private Vector2 shipMoveInput;
     private bool driverIsExiting;
+    private bool isInputGoToTarget;
     private IPassenger currentDriver;
 
     // Boarding system
@@ -88,10 +89,13 @@ public class cShipController : MonoBehaviour, ISpaceship
     private void InitializeInput()
     {
         playerControls = new PlayerInput();
+        // wasd / move 2d input
         playerControls.DriveShip.Move.performed += ctx => OnMoveInputChanged(ctx.ReadValue<Vector2>());
         playerControls.DriveShip.Move.canceled += ctx => OnMoveInputChanged(Vector2.zero);
+        // Stop driving button input
         playerControls.DriveShip.StopDriving.performed += ctx => driverIsExiting = true;
         playerControls.DriveShip.StopDriving.canceled += ctx => driverIsExiting = false;
+        playerControls.DriveShip.DebugAbility1.performed += ctx => ToggleAutopilotToTarget();
     }
 
     private void OnMoveInputChanged(Vector2 input)
@@ -111,6 +115,12 @@ public class cShipController : MonoBehaviour, ISpaceship
         {
             RemoveDriver();
         }
+    }
+
+    private void ToggleAutopilotToTarget()
+    {
+        moveTowardsTargetState.SetTarget(combatTarget.GetBoardingHatchTransform(), boardingHatchList[0].transform, 500f);
+        movementStateMachine.ChangeState(moveTowardsTargetState);
     }
 
     #endregion
@@ -186,7 +196,7 @@ public class cShipController : MonoBehaviour, ISpaceship
     public void SetMoveTowardsTarget(Transform target, float speed = 5f)
     {
         var moveState = new MoveTowardsTargetState();
-        moveState.SetTarget(target, speed);
+        moveState.SetTarget(target, GetBoardingHatchTransform(), speed);
         movementStateMachine.ChangeState(moveState);
     }
 
@@ -225,9 +235,9 @@ public class cShipController : MonoBehaviour, ISpaceship
         Debug.Log("Added hatch to ship");
     }
 
-    public Vector2 GetBoardingHatchPosition()
+    public Transform GetBoardingHatchTransform()
     {
-        return (Vector2)transform.position + boardingHatchLocalPosition;
+        return boardingHatchList[0].transform;
     }
 
     #endregion
