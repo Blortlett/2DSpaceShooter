@@ -23,9 +23,9 @@ public class cShipController : MonoBehaviour, ISpaceship
     // Movement state system
     private ShipMovementStateMachine movementStateMachine;
     private PlayerDriveState playerDriveState;
-    private MoveTowardsTargetState moveTowardsTargetState;
-    private MatchSpeedState matchSpeedState;
-    private FullThrottleState fullThrottleState;
+    //private MoveTowardsTargetState moveTowardsTargetState;
+    //private MatchSpeedState matchSpeedState;
+    //private FullThrottleState fullThrottleState;
 
     // Passenger management
     private List<IPassenger> charactersOnboard = new List<IPassenger>();
@@ -54,9 +54,9 @@ public class cShipController : MonoBehaviour, ISpaceship
         // Initialize state system
         movementStateMachine = new ShipMovementStateMachine(this);
         playerDriveState = new PlayerDriveState();
-        moveTowardsTargetState = new MoveTowardsTargetState();
-        matchSpeedState = new MatchSpeedState();
-        fullThrottleState = new FullThrottleState();
+        //moveTowardsTargetState = new MoveTowardsTargetState();
+        //matchSpeedState = new MatchSpeedState();
+        //fullThrottleState = new FullThrottleState();
     }
 
     private void Start()
@@ -119,8 +119,8 @@ public class cShipController : MonoBehaviour, ISpaceship
 
     private void ToggleAutopilotToTarget()
     {
-        moveTowardsTargetState.SetTarget(combatTarget.GetBoardingHatchTransform(), boardingHatchList[0].transform, 500f);
-        movementStateMachine.ChangeState(moveTowardsTargetState);
+        //moveTowardsTargetState.SetTarget(combatTarget.GetBoardingHatchTransform(), boardingHatchList[0].transform, 500f);
+        //movementStateMachine.ChangeState(moveTowardsTargetState);
     }
 
     #endregion
@@ -237,6 +237,7 @@ public class cShipController : MonoBehaviour, ISpaceship
 
     public Transform GetBoardingHatchTransform()
     {
+        // dodgy
         return boardingHatchList[0].transform;
     }
 
