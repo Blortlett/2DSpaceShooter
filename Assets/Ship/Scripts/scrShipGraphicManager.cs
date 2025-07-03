@@ -21,16 +21,20 @@ public class scrShipGraphicManager : MonoBehaviour
     // Internal method to swap graphics
     private void SwapToInternalGraphics()
     {
-        mFloorTiles.color = Color.clear;
-        mEngineTiles.color = Color.clear;
+        // Visible
+        mFloorTiles.color = Color.white;
+        mEngineTiles.color = Color.white;
+        // Invisible
         mShipExternalGraphics.color = Color.clear;
     }
 
     // Internal method to swap graphics
     private void SwapToExternalGraphics()
     {
-        mFloorTiles.color = Color.white;
-        mEngineTiles.color = Color.white;
+        // Invisible
+        mFloorTiles.color = Color.clear;
+        mEngineTiles.color = Color.clear;
+        // Visible
         mShipExternalGraphics.color = Color.white;
     }
 

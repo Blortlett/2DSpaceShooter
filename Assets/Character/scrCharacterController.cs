@@ -55,7 +55,7 @@ public class cCharacterController : MonoBehaviour, IPassenger
     private void Update()
     {
         //HandleInteract();
-        UpdatePlayerPosition();
+        UpdatePlayerWorldPosition();
     }
 
     // Physics stuff
@@ -68,7 +68,7 @@ public class cCharacterController : MonoBehaviour, IPassenger
     // Takes in a normalized vector 2 and calculates player movement
     public void MoveInput(Vector2 _NormalizedInput)
     {
-        // Apply acceleration
+        // Apply acceleration to input
         Vector2 AddVelocity = _NormalizedInput * CHARACTER_ACCELERATION;
         mVelocity += AddVelocity * Time.deltaTime;
 
@@ -82,24 +82,17 @@ public class cCharacterController : MonoBehaviour, IPassenger
         }
     }
 
+    // called in update()
     void MoveInsideShip()
     {
         // Get allowed velocity (handles wall collision)
         Vector2 allowedVelocity = GetAllowedMovement(mVelocity);
 
-        // Get the ship's Z rotation in radians
-        float zRotation = Mathf.Deg2Rad * mCurrentBoardedSpaceship.GetZRotation();
-
-        // Rotate the allowed velocity to align with the ship's orientation
-        Vector2 rotatedVelocity;
-        rotatedVelocity.x = allowedVelocity.x * Mathf.Cos(zRotation) - allowedVelocity.y * Mathf.Sin(zRotation);
-        rotatedVelocity.y = allowedVelocity.x * Mathf.Sin(zRotation) + allowedVelocity.y * Mathf.Cos(zRotation);
-
         // Apply rotated velocity to character position inside ship
-        mPositionInsideShip += rotatedVelocity * Time.fixedDeltaTime;
+        mPositionInsideShip += allowedVelocity * Time.fixedDeltaTime;
     }
 
-    void UpdatePlayerPosition()
+    void UpdatePlayerWorldPosition()
     {
         // Get the ship's Z rotation in radians
         float zRotation = Mathf.Deg2Rad * mCurrentBoardedSpaceship.GetZRotation();

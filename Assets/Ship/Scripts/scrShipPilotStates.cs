@@ -52,7 +52,7 @@ public class MoveTowardsTargetState : IShipMovementState
     private float arrivalRadius = 2f;
     private float velocityMatchingStrength = 5f;
 
-    public void SetTarget(Transform targetTransform, Transform localHatchTransform, float speed = 5f, float decelDistance = 10f, float arrivalDist = 2f)
+    public void SetTarget(Transform targetTransform, Transform localHatchTransform, float speed = 5f, float decelDistance = 20f, float arrivalDist = 2f)
     {
         target = targetTransform;
         localShipHatchTransform = localHatchTransform;
