@@ -43,7 +43,8 @@ public class cCharacterController : MonoBehaviour, IPassenger
     // Latest interactable nearby player
     private List<IInteractable> mInteractablesNearby = new List<IInteractable>();
 
-   
+    // Character Inventory
+    private List<IWeaponProjectile> mWeaponInventory;
 
     // Start is called before the first frame update
     void Start()

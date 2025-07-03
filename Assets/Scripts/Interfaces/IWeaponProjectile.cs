@@ -2,6 +2,7 @@ using UnityEngine;
 
 public interface IWeaponProjectile
 {
-    public GameObject GetOwner();
-    public void FireWeapon();
+    void FireProjectile(Vector3 position, Vector3 direction, float speed, float damage);
+    GameObject GetPooledProjectile();
+    void ReturnProjectileToPool(GameObject projectile);
 }
