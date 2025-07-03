@@ -44,12 +44,23 @@ public class cCharacterController : MonoBehaviour, IPassenger
     private List<IInteractable> mInteractablesNearby = new List<IInteractable>();
 
     // Character Inventory
-    private List<IWeaponProjectile> mWeaponInventory;
+    private cInventory mInventory;
 
-    // Start is called before the first frame update
+    private void Awake()
+    {
+        mInventory = new cInventory();
+    }
+
     void Start()
     {
+        // Get Rigidbody ref
         mRigidBody = GetComponent<Rigidbody2D>();
+        // If a weapon is a child of the character on start, pick up the first weapon
+        IWeaponProjectile checkHoldingWeapon = GetComponentInChildren<IWeaponProjectile>();
+        if (checkHoldingWeapon != null)
+        {
+            mInventory.AddWeapon(checkHoldingWeapon);
+        }
     }
 
     // Input n that
@@ -63,6 +74,11 @@ public class cCharacterController : MonoBehaviour, IPassenger
     void FixedUpdate()
     {
         MoveInsideShip();
+    }
+
+    public void PickupWeapon(IWeaponProjectile _Weapon)
+    {
+        mInventory.AddWeapon(_Weapon);
     }
 
     // Called from the controller - (Enemy, Player or NeutralNPC)
