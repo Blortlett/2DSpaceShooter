@@ -17,6 +17,7 @@ public class EnemyCharacter : MonoBehaviour
     {
         // Get atached charController.
         mCharacterController = GetComponent<cCharacterController>();
+        mCharacterController.SetCharacterType(cCharacterController.CharacterType.EnemyNPC);
 
         // reset timers
         mPatrolTimer = mPatrolTimeMax;

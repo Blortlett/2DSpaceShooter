@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Cinemachine;
-using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
 
 public class cShipController : MonoBehaviour, ISpaceship
@@ -44,6 +43,9 @@ public class cShipController : MonoBehaviour, ISpaceship
     // Combat
     [SerializeField] private cShipController combatTarget = null;
 
+    // Graphics controller
+    private scrShipGraphicManager shipGraphicManager;
+
     #region Unity Lifecycle
 
     private void Awake()
@@ -61,6 +63,9 @@ public class cShipController : MonoBehaviour, ISpaceship
 
     private void Start()
     {
+        // Get graphics controller from gameObject
+        shipGraphicManager = GetComponent<scrShipGraphicManager>();
+
         // Set initial velocity
         Rigidbody.velocity = new Vector2(5, 0);
 
@@ -137,7 +142,13 @@ public class cShipController : MonoBehaviour, ISpaceship
 
         charactersOnboard.Add(character);
         character.BoardShip(this);
-        Debug.Log($"Added {character.GetName()} to the ship. Total onboard: {charactersOnboard.Count}");
+        Debug.Log($"Added {character.GetCharacterType()} to the ship. Total onboard: {charactersOnboard.Count}");
+
+        // if player onboard, ship should swap to internal graphics
+        if (character.GetCharacterType() == cCharacterController.CharacterType.Player)
+        {
+            shipGraphicManager.ToggleInternalGraphics();
+        }
     }
 
     public void PlayerDisembark(IPassenger character)
@@ -150,7 +161,7 @@ public class cShipController : MonoBehaviour, ISpaceship
 
         charactersOnboard.Remove(character);
         character.DisembarkShip();
-        Debug.Log($"Removed {character.GetName()} from the ship. Total onboard: {charactersOnboard.Count}");
+        Debug.Log($"Removed {character.GetCharacterType()} from the ship. Total onboard: {charactersOnboard.Count}");
     }
 
     public List<IPassenger> GetCharactersOnboard() => charactersOnboard;
@@ -171,7 +182,11 @@ public class cShipController : MonoBehaviour, ISpaceship
         playerDriveState.SetMoveInput(shipMoveInput);
         movementStateMachine.ChangeState(playerDriveState);
 
+        // Swap to drive ship camera
         shipCamera.Priority = 11;
+
+        // Toggle external ship graphics
+        shipGraphicManager.ToggleExternalGraphics();
     }
 
     public void RemoveDriver()
@@ -185,8 +200,12 @@ public class cShipController : MonoBehaviour, ISpaceship
         // Switch to idle state
         movementStateMachine.ChangeState(new IdleState());
 
+        // Swap to player focused camera
         shipCamera.Priority = 9;
         driverIsExiting = false;
+
+        // Toggle internal ship graphics
+        shipGraphicManager.ToggleInternalGraphics();
     }
 
     #endregion

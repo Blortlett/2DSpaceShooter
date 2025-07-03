@@ -5841,6 +5841,7 @@ GameObject:
   - component: {fileID: 405974676517211507}
   - component: {fileID: 1841408727514927904}
   - component: {fileID: 6241918766560803065}
+  - component: {fileID: 7119470131482706315}
   m_Layer: 6
   m_Name: SpaceShip
   m_TagString: Untagged
@@ -5884,7 +5885,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shipAcceleration: 10
   shipAngularAcceleration: 3
-  shipCamera: {fileID: 0}
+  shipCamera: {fileID: 4637863807888770075}
   charactersToStartBoarded: []
   combatTarget: {fileID: 0}
 --- !u!50 &6241918766560803065
@@ -5914,6 +5915,21 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 0
+--- !u!114 &7119470131482706315
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2517750492599356996}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c19eef19afbf6124fbfdd8d563b302bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mFloorTiles: {fileID: 1644547151488276535}
+  mEngineTiles: {fileID: 4721603598234259625}
+  mShipExternalGraphics: {fileID: 2961806027433107620}
 --- !u!1 &2655923912989101576
 GameObject:
   m_ObjectHideFlags: 0
@@ -6898,7 +6914,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2654275429057982031
 Transform:
   m_ObjectHideFlags: 0
@@ -7024,7 +7040,7 @@ GameObject:
   - component: {fileID: 4637863807888770075}
   - component: {fileID: 5844133842149808877}
   m_Layer: 0
-  m_Name: Frigate Virtual Camera
+  m_Name: OnboardShipVirtual Camera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

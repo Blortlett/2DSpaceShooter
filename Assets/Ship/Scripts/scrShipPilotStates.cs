@@ -40,19 +40,28 @@ public class PlayerDriveState : IShipMovementState
     }
 }
 
-// State for moving towards a specific target
+// State for moving towards a specific target with velocity matching
 public class MoveTowardsTargetState : IShipMovementState
 {
     private Transform target;
     private Transform localShipHatchTransform;
-    private float approachSpeed = 5f;
+    private Rigidbody2D targetRigidbody;
+    private float maxApproachSpeed = 5f;
     private float rotationSpeed = 2f;
+    private float decelerationDistance = 10f;
+    private float arrivalRadius = 2f;
+    private float velocityMatchingStrength = 5f;
 
-    public void SetTarget(Transform targetTransform, Transform _localShipHatchTransform, float speed = 5f)
+    public void SetTarget(Transform targetTransform, Transform localHatchTransform, float speed = 5f, float decelDistance = 10f, float arrivalDist = 2f)
     {
         target = targetTransform;
-        approachSpeed = speed;
-        localShipHatchTransform = _localShipHatchTransform;
+        localShipHatchTransform = localHatchTransform;
+        maxApproachSpeed = speed;
+        decelerationDistance = decelDistance;
+        arrivalRadius = arrivalDist;
+
+        // Try to get target's rigidbody for velocity matching
+        targetRigidbody = target.GetComponent<Rigidbody2D>();
     }
 
     public void Enter(cShipController ship)
@@ -62,26 +71,92 @@ public class MoveTowardsTargetState : IShipMovementState
 
     public void Execute(cShipController ship)
     {
-        if (target == null) return;
+        if (target == null || localShipHatchTransform == null) return;
 
-        Vector2 directionToTarget = (target.position - localShipHatchTransform.position).normalized;
+        Vector2 shipPosition = localShipHatchTransform.position;
+        Vector2 targetPosition = target.position;
+        Vector2 toTarget = targetPosition - shipPosition;
+        float distanceToTarget = toTarget.magnitude;
+        Vector2 directionToTarget = toTarget.normalized;
 
-        // Calculate desired rotation
+        // Calculate desired velocity based on distance
+        Vector2 desiredVelocity = CalculateDesiredVelocity(ship, toTarget, distanceToTarget, directionToTarget);
+
+        // Calculate force needed to achieve desired velocity
+        Vector2 velocityDifference = desiredVelocity - ship.Rigidbody.velocity;
+        Vector2 thrustForce = velocityDifference * ship.ShipAcceleration;
+
+        // Apply the thrust force
+        ship.Rigidbody.AddForce(thrustForce);
+
+        // Handle rotation to match target's orientation
+        HandleRotation(ship);
+    }
+
+    private Vector2 CalculateDesiredVelocity(cShipController ship, Vector2 toTarget, float distance, Vector2 direction)
+    {
+        Vector2 targetVelocity = targetRigidbody != null ? targetRigidbody.velocity : Vector2.zero;
+
+        // If we're very close, just match target velocity
+        if (distance <= arrivalRadius)
+        {
+            return targetVelocity;
+        }
+
+        // Calculate approach velocity based on distance
+        float approachSpeed;
+        if (distance <= decelerationDistance)
+        {
+            // Deceleration zone - slow down as we get closer
+            float decelerationFactor = distance / decelerationDistance;
+            approachSpeed = Mathf.Lerp(0f, maxApproachSpeed, decelerationFactor);
+
+            // Also consider how fast we're already moving towards the target
+            Vector2 currentVelocityTowardsTarget = Vector2.zero;// Vector2.Project(ship.Rigidbody.velocity, direction);
+            float currentSpeed = currentVelocityTowardsTarget.magnitude;
+
+            // If we're moving too fast towards target, reduce desired speed further
+            if (Vector2.Dot(currentVelocityTowardsTarget, direction) > 0 && currentSpeed > approachSpeed)
+            {
+                approachSpeed = Mathf.Max(0f, approachSpeed - (currentSpeed - approachSpeed) * 0.5f);
+            }
+        }
+        else
+        {
+            // Full speed approach
+            approachSpeed = maxApproachSpeed;
+        }
+
+        // Desired velocity is approach velocity plus target velocity
+        Vector2 approachVelocity = direction * approachSpeed;
+        Vector2 desiredVelocity = approachVelocity + targetVelocity;
+
+        return desiredVelocity;
+    }
+
+    private void HandleRotation(cShipController ship)
+    {
+        // Match target's rotation
         float targetAngle = target.transform.eulerAngles.z;
         float angleDifference = Mathf.DeltaAngle(ship.transform.eulerAngles.z, targetAngle);
 
-        // Apply rotation towards target
+        // Apply rotation towards target orientation
         float torque = Mathf.Clamp(angleDifference * rotationSpeed, -ship.ShipAngularAcceleration, ship.ShipAngularAcceleration);
         ship.Rigidbody.AddTorque(torque);
-
-        // Apply thrust towards target
-        Vector2 thrustForce = directionToTarget * approachSpeed;
-        ship.Rigidbody.AddForce(thrustForce);
     }
 
     public void Exit(cShipController ship)
     {
         Debug.Log("Exiting Move Towards Target State");
+    }
+
+    // Helper method to check if we've successfully reached the target
+    public bool HasReachedTarget()
+    {
+        if (target == null || localShipHatchTransform == null) return false;
+
+        float distance = Vector2.Distance(localShipHatchTransform.position, target.position);
+        return distance <= arrivalRadius;
     }
 }
 

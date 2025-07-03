@@ -5,6 +5,12 @@ using UnityEngine;
 
 public class cCharacterController : MonoBehaviour, IPassenger
 {
+    public enum CharacterType {
+        NeutralNPC,
+        Player,
+        EnemyNPC,
+    }
+
     // Constant values
     [SerializeField] float CHARACTER_ACCELERATION = 5f;
     [SerializeField] float CHARACTER_MAXSPEED = 1f;
@@ -13,6 +19,9 @@ public class cCharacterController : MonoBehaviour, IPassenger
     // Events
     public event EventHandler OnStartDrivingShip;
     public event EventHandler OnStopDrivingShip;
+
+    // Character type
+    [SerializeField] private CharacterType mCharacterType;
 
     // Character physics
     private Vector2 mVelocity;
@@ -246,7 +255,14 @@ public class cCharacterController : MonoBehaviour, IPassenger
     }
 
     // -= Setters =-
+    public void SetCharacterType(CharacterType _CharacterType) { mCharacterType = _CharacterType; }
 
     // -= Getters =-
     public Vector2 GetPosition() { return transform.position; }
+
+    public CharacterType GetCharacterType()
+    {
+        return mCharacterType;
+    }
+
 }

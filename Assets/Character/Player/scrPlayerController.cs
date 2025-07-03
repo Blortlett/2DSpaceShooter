@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using Cinemachine;
 using UnityEngine;
 
@@ -35,6 +33,7 @@ public class cPlayerController : MonoBehaviour
     {
         // Get attatched character controller
         mCharacterController = GetComponent<cCharacterController>();
+        mCharacterController.SetCharacterType(cCharacterController.CharacterType.Player);
         // Subscribe to charController events
         mCharacterController.OnStartDrivingShip += CharacterController_OnStartDrivingShip;
         mCharacterController.OnStopDrivingShip += CharacterController_OnStopDrivingShip;

@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -36,6 +35,6 @@ public interface IPassenger
     public void DisembarkShip();
     // Get ship character is aboard, if aboard a ship
     public ISpaceship GetBoardedShip();
-    // Get character name
-    public string GetName();
+    // Get character type
+    public cCharacterController.CharacterType GetCharacterType();
 }
