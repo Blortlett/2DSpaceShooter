@@ -77,6 +77,7 @@ MonoBehaviour:
   CHARACTER_ACCELERATION: 50
   CHARACTER_MAXSPEED: 2
   CHARACTER_DRAG: 0.0001
+  mCharacterType: 0
 --- !u!58 &455101134632227950
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -182,7 +183,7 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 1756382483
+  m_SortingLayerID: 1813690065
   m_SortingLayer: 3
   m_SortingOrder: 0
   m_Sprite: {fileID: -490488816, guid: a90fa8c89295548468dd48758ac111ad, type: 3}

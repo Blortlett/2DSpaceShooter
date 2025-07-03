@@ -40,15 +40,18 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Background
+    uniqueID: 1791179687
+    locked: 0
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: ShipFloor
-    uniqueID: 561846367
-    locked: 0
-  - name: ShipComponents
+  - name: NPCShip
     uniqueID: 2871618467
     locked: 0
-  - name: Player
-    uniqueID: 1756382483
+  - name: PlayerShip
+    uniqueID: 561846367
+    locked: 0
+  - name: Character
+    uniqueID: 1813690065
     locked: 0
