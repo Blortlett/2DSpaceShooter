@@ -6,18 +6,14 @@ public class scrProjectileManager : MonoBehaviour
     [SerializeField] private GameObject mProjectilePrefab;
     [SerializeField] private int mProjectilesPerCharacterPool = 20;
 
-    // List of characters to pool for
-    [SerializeField] List<cCharacterController.CharacterType> Characters = new List<cCharacterController.CharacterType>();
     // Projectile pools
-    List<List<GameObject>> mProjectilePools = new List<List<GameObject>>();
-    
+    SortedDictionary<IWeaponProjectile, List<GameObject>> mProjectilePools = new SortedDictionary<IWeaponProjectile, List<GameObject>>
 
 
-    public void AddPassengerToManager(IPassenger _Passenger)
+
+
+    public void AssignWeaponPool(IWeaponProjectile _Weapon)
     {
-        // Save Character type reference... maybe not so needed?
-        cCharacterController.CharacterType characterType = _Passenger.GetCharacterType();
-        Characters.Add(characterType);
         // Create new pool
         List<GameObject> projectilePool = new List<GameObject>();
         // Add bullets to new projectile pool
@@ -25,8 +21,8 @@ public class scrProjectileManager : MonoBehaviour
         {
             projectilePool.Add(Instantiate(mProjectilePrefab));
         }
-        // Add pool to list of projectile pools
-        mProjectilePools.Add(projectilePool);
+        // Add pool to map of projectile pools
+        mProjectilePools.Add(_Weapon, projectilePool);
     }
 
     

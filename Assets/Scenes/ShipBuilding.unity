@@ -785,6 +785,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 856058272}
     - target: {fileID: 6930415286726684632, guid: 72ab682de949a0e45a1d23fa4e428239, type: 3}
+      propertyPath: shipAcceleration
+      value: 1000
+      objectReference: {fileID: 0}
+    - target: {fileID: 6930415286726684632, guid: 72ab682de949a0e45a1d23fa4e428239, type: 3}
       propertyPath: charactersToStartBoarded.Array.size
       value: 2
       objectReference: {fileID: 0}
