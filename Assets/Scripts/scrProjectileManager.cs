@@ -7,7 +7,7 @@ public class scrProjectileManager : MonoBehaviour
     [SerializeField] private int mProjectilesPerCharacterPool = 20;
 
     // Projectile pools
-    SortedDictionary<IWeaponProjectile, List<GameObject>> mProjectilePools = new SortedDictionary<IWeaponProjectile, List<GameObject>>
+    SortedDictionary<IWeaponProjectile, List<GameObject>> mProjectilePools = new SortedDictionary<IWeaponProjectile, List<GameObject>>();
 
 
 
