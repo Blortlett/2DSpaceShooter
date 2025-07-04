@@ -68,6 +68,7 @@ public class cCharacterController : MonoBehaviour, IPassenger
             // Equip this weapon
             mEquippedWeapon = checkHoldingWeapon;
             Debug.Log($"{mCharacterType} is holding weapon: {checkHoldingWeapon.GetWeaponName()}");
+
         }
     }
 

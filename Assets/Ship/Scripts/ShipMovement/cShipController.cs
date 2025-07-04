@@ -33,11 +33,9 @@ public class cShipController : MonoBehaviour, ISpaceship
     private PlayerInput playerControls;
     private Vector2 shipMoveInput;
     private bool driverIsExiting;
-    private bool isInputGoToTarget;
     private IPassenger currentDriver;
 
     // Boarding system
-    private Vector2 boardingHatchLocalPosition;
     private List<cBoardingHatch> boardingHatchList = new List<cBoardingHatch>();
 
     // Combat
@@ -250,7 +248,6 @@ public class cShipController : MonoBehaviour, ISpaceship
         if (boardingHatch == null) return;
 
         boardingHatchList.Add(boardingHatch);
-        boardingHatchLocalPosition = boardingHatch.transform.position - transform.position;
     }
 
     public Transform GetBoardingHatchTransform()

@@ -8,6 +8,7 @@ TagManager:
   - Wall
   - PlayerInteractable
   - ShipInteractable
+  - Character
   layers:
   - Default
   - TransparentFX
