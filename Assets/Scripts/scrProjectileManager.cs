@@ -61,24 +61,6 @@ public class scrProjectileManager : MonoBehaviour
         return newProjectile;
     }
 
-    public void ReturnProjectileToPool(IPassenger _Passenger, GameObject _Projectile)
-    {
-        if (_Projectile != null)
-        {
-            _Projectile.SetActive(false);
-            // Reset position to avoid clutter
-            _Projectile.transform.position = Vector3.zero;
-
-            // Reset velocity if it has a Rigidbody2D
-            Rigidbody2D rb = _Projectile.GetComponent<Rigidbody2D>();
-            if (rb != null)
-            {
-                rb.velocity = Vector2.zero;
-                rb.angularVelocity = 0f;
-            }
-        }
-    }
-
     // Clean up unused pools when weapons are destroyed
     public void RemoveCharacterProjectilePool(IPassenger _Passenger)
     {

@@ -124,18 +124,6 @@ public class scrGun : MonoBehaviour, IInteractable, IProjectileWeapon
         }
         return null;
     }
-
-    public void ReturnProjectileToPool(GameObject projectile)
-    {
-        if (mProjectileManager != null)
-        {
-            mProjectileManager.ReturnProjectileToPool(mCurrentHolder, projectile);
-        }
-        else
-        {
-            projectile.SetActive(false);
-        }
-    }
     #endregion
 
     #region Gun Control Methods

@@ -106,14 +106,7 @@ public class scrProjectile : MonoBehaviour
 
     private void ReturnToPool()
     {
-        if (mSourceWeapon != null)
-        {
-            mSourceWeapon.ReturnProjectileToPool(gameObject);
-        }
-        else
-        {
             gameObject.SetActive(false);
-        }
     }
 }
 
