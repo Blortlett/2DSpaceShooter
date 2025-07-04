@@ -10,7 +10,7 @@ public class cPlayerController : MonoBehaviour
     private PlayerInput mPlayerControls;
     private Vector2 mMoveInput;
     private Vector2 mMousePosition;
-    private bool mIsInteracting;
+    
 
     // PlayerCamera reference
     [SerializeField] CinemachineVirtualCamera mPlayerCamera;
@@ -20,11 +20,12 @@ public class cPlayerController : MonoBehaviour
     {
         // Get controller component
         mPlayerControls = new PlayerInput();
+
         // Subscribe vars to input Events
         mPlayerControls.Player.Move.performed += ctx => mMoveInput = ctx.ReadValue<Vector2>();
         mPlayerControls.Player.Move.canceled += ctx => mMoveInput = Vector2.zero;
         mPlayerControls.Player.Look.performed += ctx => mMousePosition = ctx.ReadValue<Vector2>();
-        mPlayerControls.Player.Interact.performed += ctx => mIsInteracting = true;
+        
         // Enable input capture
         mPlayerControls.Player.Enable();
     }
@@ -34,9 +35,16 @@ public class cPlayerController : MonoBehaviour
         // Get attatched character controller
         mCharacterController = GetComponent<cCharacterController>();
         mCharacterController.SetCharacterType(cCharacterController.CharacterType.Player);
+
         // Subscribe to charController events
         mCharacterController.OnStartDrivingShip += CharacterController_OnStartDrivingShip;
         mCharacterController.OnStopDrivingShip += CharacterController_OnStopDrivingShip;
+
+        // Input variables that toggle CharController Values directly
+        mPlayerControls.Player.Interact.performed += ctx => mCharacterController.mIsInteracting = true;
+        mPlayerControls.Player.Interact.canceled += ctx => mCharacterController.mIsInteracting = false;
+        mPlayerControls.Player.Fire.performed += ctx => mCharacterController.PullWeaponTrigger();
+        mPlayerControls.Player.Fire.canceled += ctx => mCharacterController.ReleaseWeaponTrigger();
     }
 
     private void UpdateCamera()
@@ -52,17 +60,6 @@ public class cPlayerController : MonoBehaviour
     {
         UpdateCamera();
         MoveInput();
-        HandleInteract();
-    }
-
-    private void HandleInteract()
-    {
-        // If interacting... trigger characterController to interact
-        if (mIsInteracting)
-        {
-            mCharacterController.HandleInteract();
-            mIsInteracting = false;
-        }
     }
 
     void MoveInput()

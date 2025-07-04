@@ -23,7 +23,6 @@ public class scrHatchShipInteractable : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        Debug.Log($"{collision.tag} Entered ShipInteractable");
         if (collision.CompareTag("ShipInteractable"))
         {
             OnEnterInteractRange(collision.GetComponent<IShipInteractable>());

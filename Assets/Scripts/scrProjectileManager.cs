@@ -32,6 +32,8 @@ public class scrProjectileManager : MonoBehaviour
 
         // Add pool to map of projectile pools
         mProjectilePools.Add(_Weapon, projectilePool);
+
+        Debug.Log($"Created weapon pool for {_Weapon.GetWeaponName()}");
     }
 
     public GameObject GetPooledProjectile(IProjectileWeapon _Weapon)

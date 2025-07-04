@@ -251,7 +251,6 @@ public class cShipController : MonoBehaviour, ISpaceship
 
         boardingHatchList.Add(boardingHatch);
         boardingHatchLocalPosition = boardingHatch.transform.position - transform.position;
-        Debug.Log("Added hatch to ship");
     }
 
     public Transform GetBoardingHatchTransform()

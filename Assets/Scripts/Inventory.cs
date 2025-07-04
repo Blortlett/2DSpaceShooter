@@ -5,6 +5,7 @@ public class cInventory
 {
     // Inventory List
     List<IProjectileWeapon> mInventoryList;
+    //IProjectileWeapon mEquippedWeapon;
     
     public cInventory()
     {
@@ -14,6 +15,10 @@ public class cInventory
     public void AddWeapon(IProjectileWeapon _Weapon)
     {
         mInventoryList.Add(_Weapon);
+        //if (mEquippedWeapon == null)
+        //{
+        //    mEquippedWeapon = _Weapon;
+        //}
     }
 
     public IProjectileWeapon RetrieveWeapon(int _Index)

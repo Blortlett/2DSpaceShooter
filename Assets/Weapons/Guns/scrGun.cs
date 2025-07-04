@@ -95,7 +95,7 @@ public class scrGun : MonoBehaviour, IInteractable, IProjectileWeapon
     #endregion
 
     #region IWeaponProjectile Implementation
-    public void FireProjectile(Vector3 position, Vector3 direction, float speed, float damage)
+    private void FireProjectile(Vector3 position, Vector3 direction, float speed, float damage)
     {
         GameObject projectile = GetPooledProjectile();
         if (projectile != null)
@@ -252,6 +252,8 @@ public class scrGun : MonoBehaviour, IInteractable, IProjectileWeapon
             mAudioSource.PlayOneShot(clip);
         }
     }
+
+    
     #endregion
 
     #region Public Properties
@@ -263,4 +265,13 @@ public class scrGun : MonoBehaviour, IInteractable, IProjectileWeapon
     public bool HasAmmo => mCurrentAmmo > 0;
     public cCharacterController CurrentHolder => mCurrentHolder;
     #endregion
+
+
+    // Getters
+    public string GetWeaponName()
+    {
+        return mGunName;
+    }
+
+
 }

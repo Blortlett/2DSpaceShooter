@@ -36,7 +36,7 @@ public class PlayerDriveState : IShipMovementState
 
     public void Exit(cShipController ship)
     {
-        Debug.Log("Exiting Player Drive State");
+        //Debug.Log("Exiting Player Drive State");
     }
 }
 
@@ -158,7 +158,7 @@ public class MoveTowardsTargetState : IShipMovementState
 
     public void Exit(cShipController ship)
     {
-        Debug.Log("Exiting Move Towards Target State");
+        //Debug.Log("Exiting Move Towards Target State");
     }
 
     // Helper method to check if we've successfully reached the target
@@ -241,7 +241,7 @@ public class IdleState : IShipMovementState
 {
     public void Enter(cShipController ship)
     {
-        Debug.Log("Entering Idle State");
+        //Debug.Log("Entering Idle State");
     }
 
     public void Execute(cShipController ship)
@@ -252,7 +252,7 @@ public class IdleState : IShipMovementState
 
     public void Exit(cShipController ship)
     {
-        Debug.Log("Exiting Idle State");
+        //Debug.Log("Exiting Idle State");
     }
 }
 

@@ -45,6 +45,11 @@ public class cCharacterController : MonoBehaviour, IPassenger
 
     // Character Inventory
     private cInventory mInventory;
+    private IProjectileWeapon mEquippedWeapon;
+
+    // input BoolTriggers
+    public bool mIsInteracting;
+    public bool mIsAttacking;
 
     private void Awake()
     {
@@ -60,6 +65,9 @@ public class cCharacterController : MonoBehaviour, IPassenger
         if (checkHoldingWeapon != null)
         {
             mInventory.AddWeapon(checkHoldingWeapon);
+            // Equip this weapon
+            mEquippedWeapon = checkHoldingWeapon;
+            Debug.Log($"{mCharacterType} is holding weapon: {checkHoldingWeapon.GetWeaponName()}");
         }
     }
 
@@ -139,6 +147,16 @@ public class cCharacterController : MonoBehaviour, IPassenger
 
         // Apply rotation around Z-axis (for 2D top-down)
         transform.rotation = Quaternion.Euler(0f, 0f, angle);
+    }
+
+    public void PullWeaponTrigger()
+    {
+        mEquippedWeapon.StartFiring();
+    }
+
+    public void ReleaseWeaponTrigger()
+    {
+        mEquippedWeapon.StopFiring();
     }
 
     public void HandleInteract()
