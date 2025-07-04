@@ -13,8 +13,8 @@ public class scrProjectile : MonoBehaviour
     private float mDamage;
     private float mMaxRange;
     private Vector3 mStartPosition;
-    private IWeaponProjectile mSourceWeapon;
-    private Rigidbody2D mRigidbody;
+    private IProjectileWeapon mSourceWeapon;
+    private Rigidbody2D mRigidbody; // Do we need this? Delete if can plz
     private float mActiveTime;
 
     void Awake()
@@ -81,7 +81,7 @@ public class scrProjectile : MonoBehaviour
         }
     }
 
-    public void Initialize(Vector3 direction, float speed, float damage, float maxRange, IWeaponProjectile sourceWeapon)
+    public void Initialize(Vector3 direction, float speed, float damage, float maxRange, IProjectileWeapon sourceWeapon)
     {
         mDirection = direction.normalized;
         mSpeed = speed;

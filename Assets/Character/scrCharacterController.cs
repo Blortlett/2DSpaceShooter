@@ -56,7 +56,7 @@ public class cCharacterController : MonoBehaviour, IPassenger
         // Get Rigidbody ref
         mRigidBody = GetComponent<Rigidbody2D>();
         // If a weapon is a child of the character on start, pick up the first weapon
-        IWeaponProjectile checkHoldingWeapon = GetComponentInChildren<IWeaponProjectile>();
+        IProjectileWeapon checkHoldingWeapon = GetComponentInChildren<IProjectileWeapon>();
         if (checkHoldingWeapon != null)
         {
             mInventory.AddWeapon(checkHoldingWeapon);
@@ -76,7 +76,7 @@ public class cCharacterController : MonoBehaviour, IPassenger
         MoveInsideShip();
     }
 
-    public void PickupWeapon(IWeaponProjectile _Weapon)
+    public void PickupWeapon(IProjectileWeapon _Weapon)
     {
         mInventory.AddWeapon(_Weapon);
     }

@@ -7,7 +7,7 @@ public enum FireMode
     Automatic
 }
 
-public class scrGun : MonoBehaviour, IInteractable, IWeaponProjectile
+public class scrGun : MonoBehaviour, IInteractable, IProjectileWeapon
 {
     [Header("Gun Settings")]
     [SerializeField] private string mGunName = "Pistol";

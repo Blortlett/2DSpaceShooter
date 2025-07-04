@@ -8,12 +8,12 @@ public class scrProjectileManager : MonoBehaviour
     [SerializeField] private int mProjectilesPerCharacterPool = 20;
 
     // Projectile pools
-    SortedDictionary<IWeaponProjectile, List<GameObject>> mProjectilePools = new SortedDictionary<IWeaponProjectile, List<GameObject>>();
+    SortedDictionary<IProjectileWeapon, List<GameObject>> mProjectilePools = new SortedDictionary<IProjectileWeapon, List<GameObject>>();
 
 
 
 
-    public void AssignWeaponPool(IWeaponProjectile _Weapon)
+    public void AssignWeaponPool(IProjectileWeapon _Weapon)
     {
         // Don't create duplicate pools
         if (mProjectilePools.ContainsKey(_Weapon))
@@ -34,7 +34,7 @@ public class scrProjectileManager : MonoBehaviour
         mProjectilePools.Add(_Weapon, projectilePool);
     }
 
-    public GameObject GetPooledProjectile(IWeaponProjectile _Weapon)
+    public GameObject GetPooledProjectile(IProjectileWeapon _Weapon)
     {
         if (!mProjectilePools.ContainsKey(_Weapon))
         {
@@ -59,7 +59,7 @@ public class scrProjectileManager : MonoBehaviour
         return newProjectile;
     }
 
-    public void ReturnProjectileToPool(IWeaponProjectile _Weapon, GameObject _Projectile)
+    public void ReturnProjectileToPool(IProjectileWeapon _Weapon, GameObject _Projectile)
     {
         if (_Projectile != null)
         {
@@ -78,7 +78,7 @@ public class scrProjectileManager : MonoBehaviour
     }
 
     // Clean up unused pools when weapons are destroyed
-    public void RemoveWeaponPool(IWeaponProjectile _Weapon)
+    public void RemoveWeaponPool(IProjectileWeapon _Weapon)
     {
         if (mProjectilePools.ContainsKey(_Weapon))
         {

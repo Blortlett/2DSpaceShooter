@@ -48,7 +48,7 @@ public class MoveTowardsTargetState : IShipMovementState
     private Rigidbody2D targetRigidbody;
     private float maxApproachSpeed = 5f;
     private float rotationSpeed = 2f;
-    private float decelerationDistance = 10f;
+    private float decelerationDistance = 20f;
     private float arrivalRadius = 2f;
     private float velocityMatchingStrength = 5f;
 
@@ -79,6 +79,7 @@ public class MoveTowardsTargetState : IShipMovementState
         float distanceToTarget = toTarget.magnitude;
         Vector2 directionToTarget = toTarget.normalized;
 
+
         // Calculate desired velocity based on distance
         Vector2 desiredVelocity = CalculateDesiredVelocity(ship, toTarget, distanceToTarget, directionToTarget);
 
@@ -95,7 +96,17 @@ public class MoveTowardsTargetState : IShipMovementState
 
     private Vector2 CalculateDesiredVelocity(cShipController ship, Vector2 toTarget, float distance, Vector2 direction)
     {
-        Vector2 targetVelocity = targetRigidbody != null ? targetRigidbody.velocity : Vector2.zero;
+        // Taking Target's velocity into account
+        Vector2 targetVelocity = Vector2.zero;
+        if (targetRigidbody != null)
+        {
+            Debug.Log("Approaching moving ship");
+            targetVelocity = targetRigidbody.velocity;
+            // Calculate max approach speed (Slightly higher than target velocity magnitude)
+            maxApproachSpeed = targetVelocity.magnitude;
+            maxApproachSpeed *= 1.25f;
+        }
+        
 
         // If we're very close, just match target velocity
         if (distance <= arrivalRadius)
@@ -112,7 +123,7 @@ public class MoveTowardsTargetState : IShipMovementState
             approachSpeed = Mathf.Lerp(0f, maxApproachSpeed, decelerationFactor);
 
             // Also consider how fast we're already moving towards the target
-            Vector2 currentVelocityTowardsTarget = Vector2.zero;// Vector2.Project(ship.Rigidbody.velocity, direction);
+            Vector2 currentVelocityTowardsTarget = Vector3.Project(ship.Rigidbody.velocity, direction);
             float currentSpeed = currentVelocityTowardsTarget.magnitude;
 
             // If we're moving too fast towards target, reduce desired speed further
@@ -129,7 +140,7 @@ public class MoveTowardsTargetState : IShipMovementState
 
         // Desired velocity is approach velocity plus target velocity
         Vector2 approachVelocity = direction * approachSpeed;
-        Vector2 desiredVelocity = approachVelocity + targetVelocity;
+        Vector2 desiredVelocity = approachVelocity;// + targetVelocity;
 
         return desiredVelocity;
     }

@@ -142,7 +142,7 @@ public class cShipController : MonoBehaviour, ISpaceship
 
         charactersOnboard.Add(character);
         character.BoardShip(this);
-        Debug.Log($"Added {character.GetCharacterType()} to the ship. Total onboard: {charactersOnboard.Count}");
+        //Debug.Log($"Added {character.GetCharacterType()} to the ship. Total onboard: {charactersOnboard.Count}");
 
         // if player onboard, ship should swap to internal graphics
         if (character.GetCharacterType() == cCharacterController.CharacterType.Player)
@@ -267,6 +267,8 @@ public class cShipController : MonoBehaviour, ISpaceship
     public Vector2 GetPosition() => transform.position;
     public GameObject GetShip() => gameObject;
     public string GetShipName() => gameObject.name;
+    public Rigidbody2D GetShipRigidbody() => Rigidbody;
+    public Transform GetBoardingHatch() => boardingHatchList[0].transform;
     public float GetZRotation() => transform.eulerAngles.z;
 
     #endregion

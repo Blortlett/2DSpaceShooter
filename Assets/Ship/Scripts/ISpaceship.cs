@@ -15,6 +15,10 @@ public interface ISpaceship
     public float GetZRotation();
     // Get the ship gameobject
     public GameObject GetShip();
+    // Get ship rigidbody
+    public Rigidbody2D GetShipRigidbody();
+    // Get boarding hatch
+    public Transform GetBoardingHatch();
     // Get the name of the ship
     public string GetShipName();
     // Respond to a passenger taking control of the ship
@@ -37,4 +41,11 @@ public interface IPassenger
     public ISpaceship GetBoardedShip();
     // Get character type
     public cCharacterController.CharacterType GetCharacterType();
+}
+
+public interface IShipInteractable
+{
+    public bool CanInteract();
+    public void OnEnterInteractRange(IShipInteractable _Ship);
+    public void OnLeaveInteractRange(IShipInteractable _Ship);
 }

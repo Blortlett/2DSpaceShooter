@@ -4,19 +4,19 @@ using UnityEngine;
 public class cInventory
 {
     // Inventory List
-    List<IWeaponProjectile> mInventoryList;
+    List<IProjectileWeapon> mInventoryList;
     
     public cInventory()
     {
-        mInventoryList = new List<IWeaponProjectile>();
+        mInventoryList = new List<IProjectileWeapon>();
     }
 
-    public void AddWeapon(IWeaponProjectile _Weapon)
+    public void AddWeapon(IProjectileWeapon _Weapon)
     {
         mInventoryList.Add(_Weapon);
     }
 
-    public IWeaponProjectile RetrieveWeapon(int _Index)
+    public IProjectileWeapon RetrieveWeapon(int _Index)
     {
         return mInventoryList[_Index];
     }
