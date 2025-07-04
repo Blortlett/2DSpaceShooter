@@ -33,5 +33,5 @@ public class cBoardingHatch : MonoBehaviour
     }
 
     // -= Getters =-
-    public bool GetIsHatchOpen() { return true; }
+    public bool GetIsHatchOpen() { return isHatchOpen; }
 }

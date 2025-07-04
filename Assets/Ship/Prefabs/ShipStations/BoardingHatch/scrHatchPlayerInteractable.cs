@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class scrHatchPlayerInteractable : MonoBehaviour
+public class scrHatchPlayerInteractable : MonoBehaviour, IInteractable
 {
     [SerializeField] cBoardingHatch mHatchController;
 
