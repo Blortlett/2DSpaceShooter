@@ -32,8 +32,6 @@ public class cCharacterController : MonoBehaviour, IPassenger
     private Vector2 mWallNormal;
 
     // Current Ship Data
-    bool IsAboardShip;
-    bool mIsDrivingShip;
     private ISpaceship mCurrentBoardedSpaceship;
     private Vector2 mPositionInsideShip;
 
@@ -46,10 +44,6 @@ public class cCharacterController : MonoBehaviour, IPassenger
     // Character Inventory
     private cInventory mInventory;
     private IProjectileWeapon mEquippedWeapon;
-
-    // input BoolTriggers
-    public bool mIsInteracting;
-    public bool mIsAttacking;
 
     private void Awake()
     {
@@ -67,6 +61,7 @@ public class cCharacterController : MonoBehaviour, IPassenger
             mInventory.AddWeapon(checkHoldingWeapon);
             // Equip this weapon
             mEquippedWeapon = checkHoldingWeapon;
+            mEquippedWeapon.Pickup(this);
             Debug.Log($"{mCharacterType} is holding weapon: {checkHoldingWeapon.GetWeaponName()}");
 
         }
@@ -149,7 +144,6 @@ public class cCharacterController : MonoBehaviour, IPassenger
         // Apply rotation around Z-axis (for 2D top-down)
         transform.rotation = Quaternion.Euler(0f, 0f, angle);
     }
-
     public void PullWeaponTrigger()
     {
         mEquippedWeapon.StartFiring();
@@ -172,13 +166,11 @@ public class cCharacterController : MonoBehaviour, IPassenger
     public void BoardShip(ISpaceship _Ship)
     {
         mCurrentBoardedSpaceship = _Ship;
-        IsAboardShip = true;
     }
 
     public void DisembarkShip()
     {
         mCurrentBoardedSpaceship = null;
-        IsAboardShip = false;
     }
 
     public ISpaceship GetBoardedShip()
@@ -193,13 +185,11 @@ public class cCharacterController : MonoBehaviour, IPassenger
 
     public void OnPossessShip(ISpaceship _Ship)
     {
-        mIsDrivingShip = true;
         OnStartDrivingShip?.Invoke(this, EventArgs.Empty);
     }
 
     public void StopDrivingShip()
     {
-        mIsDrivingShip = false;
         OnStopDrivingShip?.Invoke(this, EventArgs.Empty);
     }
 

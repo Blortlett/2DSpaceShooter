@@ -8,15 +8,15 @@ public class scrProjectileManager : MonoBehaviour
     [SerializeField] private int mProjectilesPerCharacterPool = 20;
 
     // Projectile pools
-    SortedDictionary<IProjectileWeapon, List<GameObject>> mProjectilePools = new SortedDictionary<IProjectileWeapon, List<GameObject>>();
+    SortedDictionary<IPassenger, List<GameObject>> mProjectilePools = new SortedDictionary<IPassenger, List<GameObject>>();
 
 
 
 
-    public void AssignWeaponPool(IProjectileWeapon _Weapon)
+    public void AssignPoolForCharacter(IPassenger _Passenger)
     {
         // Don't create duplicate pools
-        if (mProjectilePools.ContainsKey(_Weapon))
+        if (mProjectilePools.ContainsKey(_Passenger))
             return;
 
         // Create new pool
@@ -31,19 +31,19 @@ public class scrProjectileManager : MonoBehaviour
         }
 
         // Add pool to map of projectile pools
-        mProjectilePools.Add(_Weapon, projectilePool);
+        mProjectilePools.Add(_Passenger, projectilePool);
 
-        Debug.Log($"Created weapon pool for {_Weapon.GetWeaponName()}");
+        Debug.Log($"Created weapon pool for {_Passenger.GetCharacterType()}");
     }
 
-    public GameObject GetPooledProjectile(IProjectileWeapon _Weapon)
+    public GameObject GetPooledProjectile(IPassenger _Passenger)
     {
-        if (!mProjectilePools.ContainsKey(_Weapon))
+        if (!mProjectilePools.ContainsKey(_Passenger))
         {
-            AssignWeaponPool(_Weapon);
+            AssignPoolForCharacter(_Passenger);
         }
 
-        List<GameObject> pool = mProjectilePools[_Weapon];
+        List<GameObject> pool = mProjectilePools[_Passenger];
 
         // Find inactive projectile
         for (int i = 0; i < pool.Count; i++)
@@ -61,7 +61,7 @@ public class scrProjectileManager : MonoBehaviour
         return newProjectile;
     }
 
-    public void ReturnProjectileToPool(IProjectileWeapon _Weapon, GameObject _Projectile)
+    public void ReturnProjectileToPool(IPassenger _Passenger, GameObject _Projectile)
     {
         if (_Projectile != null)
         {
@@ -80,11 +80,11 @@ public class scrProjectileManager : MonoBehaviour
     }
 
     // Clean up unused pools when weapons are destroyed
-    public void RemoveWeaponPool(IProjectileWeapon _Weapon)
+    public void RemoveCharacterProjectilePool(IPassenger _Passenger)
     {
-        if (mProjectilePools.ContainsKey(_Weapon))
+        if (mProjectilePools.ContainsKey(_Passenger))
         {
-            List<GameObject> pool = mProjectilePools[_Weapon];
+            List<GameObject> pool = mProjectilePools[_Passenger];
 
             // Destroy all projectiles in the pool
             for (int i = 0; i < pool.Count; i++)
@@ -96,7 +96,7 @@ public class scrProjectileManager : MonoBehaviour
             }
 
             // Remove the pool
-            mProjectilePools.Remove(_Weapon);
+            mProjectilePools.Remove(_Passenger);
         }
     }
 }

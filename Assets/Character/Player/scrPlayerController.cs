@@ -41,9 +41,8 @@ public class cPlayerController : MonoBehaviour
         mCharacterController.OnStopDrivingShip += CharacterController_OnStopDrivingShip;
 
         // Input variables that toggle CharController Values directly
-        mPlayerControls.Player.Interact.performed += ctx => mCharacterController.mIsInteracting = true;
-        mPlayerControls.Player.Interact.canceled += ctx => mCharacterController.mIsInteracting = false;
-        mPlayerControls.Player.Fire.performed += ctx => mCharacterController.PullWeaponTrigger();
+        mPlayerControls.Player.Interact.started += ctx => mCharacterController.HandleInteract();
+        mPlayerControls.Player.Fire.started += ctx => mCharacterController.PullWeaponTrigger();
         mPlayerControls.Player.Fire.canceled += ctx => mCharacterController.ReleaseWeaponTrigger();
     }
 

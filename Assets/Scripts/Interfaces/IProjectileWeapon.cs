@@ -7,4 +7,6 @@ public interface IProjectileWeapon
     void StartFiring();
     void StopFiring();
     string GetWeaponName();
+    void Pickup(IPassenger _Character);
+    void Drop();
 }

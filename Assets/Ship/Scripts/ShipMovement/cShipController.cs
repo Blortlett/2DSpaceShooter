@@ -26,17 +26,20 @@ public class cShipController : MonoBehaviour, ISpaceship
     private MatchSpeedState matchSpeedState;
     private FullThrottleState fullThrottleState;
 
+    // -= Ship Managers =-
+    // Local Projectile Manager for character bullets
+    scrProjectileManager projectileManager;
     // Passenger management
-    private List<IPassenger> charactersOnboard = new List<IPassenger>();
+    private cShipPassengerManager passengerManager;
 
     // Player input
     private PlayerInput playerControls;
     private Vector2 shipMoveInput;
     private bool driverIsExiting;
-    private IPassenger currentDriver;
 
     // Boarding system
     private List<cBoardingHatch> boardingHatchList = new List<cBoardingHatch>();
+    private Vector2 boardingHatchLocalPosition;
 
     // Combat
     [SerializeField] private cShipController combatTarget = null;
@@ -50,6 +53,12 @@ public class cShipController : MonoBehaviour, ISpaceship
     {
         InitializeInput();
         Rigidbody = GetComponent<Rigidbody2D>();
+
+        // Init projectileManager
+        projectileManager = GetComponentInChildren<scrProjectileManager>();
+        // Initialize passenger manager
+        passengerManager = new cShipPassengerManager(this, projectileManager);
+        SetupPassengerManagerEvents();
 
         // Initialize state system
         movementStateMachine = new ShipMovementStateMachine(this);
@@ -67,11 +76,8 @@ public class cShipController : MonoBehaviour, ISpaceship
         // Set initial velocity
         Rigidbody.velocity = new Vector2(5, 0);
 
-        // Add starting characters
-        foreach (cCharacterController character in charactersToStartBoarded)
-        {
-            AddToCharactersOnBoard(character);
-        }
+        // Add starting characters using passenger manager
+        passengerManager.InitializeWithPassengers(charactersToStartBoarded);
     }
 
     private void Update()
@@ -83,6 +89,63 @@ public class cShipController : MonoBehaviour, ISpaceship
     {
         // Update movement state machine
         movementStateMachine.Update();
+    }
+
+    #endregion
+
+    #region Passenger Manager Setup
+
+    private void SetupPassengerManagerEvents()
+    {
+        passengerManager.OnPassengerBoarded += OnPassengerBoarded;
+        passengerManager.OnPassengerDisembarked += OnPassengerDisembarked;
+        passengerManager.OnDriverChanged += OnDriverChanged;
+        passengerManager.OnDriverRemoved += OnDriverRemoved;
+    }
+
+    private void OnPassengerBoarded(IPassenger passenger)
+    {
+        // Handle graphics changes when player boards
+        if (passenger.GetCharacterType() == cCharacterController.CharacterType.Player)
+        {
+            shipGraphicManager.ToggleInternalGraphics();
+        }
+    }
+
+    private void OnPassengerDisembarked(IPassenger passenger)
+    {
+        // Handle any cleanup when passengers leave
+        Debug.Log($"Passenger {passenger.GetCharacterType()} has left the ship");
+    }
+
+    private void OnDriverChanged(IPassenger newDriver)
+    {
+        playerControls.Enable();
+
+        // Switch to player drive state
+        playerDriveState.SetMoveInput(shipMoveInput);
+        movementStateMachine.ChangeState(playerDriveState);
+
+        // Swap to drive ship camera
+        shipCamera.Priority = 11;
+
+        // Toggle external ship graphics
+        shipGraphicManager.ToggleExternalGraphics();
+    }
+
+    private void OnDriverRemoved()
+    {
+        playerControls.Disable();
+
+        // Switch to idle state
+        movementStateMachine.ChangeState(new IdleState());
+
+        // Swap to player focused camera
+        shipCamera.Priority = 9;
+        driverIsExiting = false;
+
+        // Toggle internal ship graphics
+        shipGraphicManager.ToggleInternalGraphics();
     }
 
     #endregion
@@ -114,9 +177,9 @@ public class cShipController : MonoBehaviour, ISpaceship
 
     private void HandleDriverExit()
     {
-        if (driverIsExiting && currentDriver != null)
+        if (driverIsExiting && passengerManager.HasDriver)
         {
-            RemoveDriver();
+            passengerManager.RemoveDriver();
         }
     }
 
@@ -128,82 +191,47 @@ public class cShipController : MonoBehaviour, ISpaceship
 
     #endregion
 
-    #region Passenger Management
+    #region Public Passenger API (Delegates to PassengerManager)
 
     public void AddToCharactersOnBoard(IPassenger character)
     {
-        if (character == null)
-        {
-            Debug.LogWarning("Attempted to add a null character to the ship.");
-            return;
-        }
-
-        charactersOnboard.Add(character);
-        character.BoardShip(this);
-        //Debug.Log($"Added {character.GetCharacterType()} to the ship. Total onboard: {charactersOnboard.Count}");
-
-        // if player onboard, ship should swap to internal graphics
-        if (character.GetCharacterType() == cCharacterController.CharacterType.Player)
-        {
-            shipGraphicManager.ToggleInternalGraphics();
-        }
+        passengerManager.AddPassenger(character);
     }
 
     public void PlayerDisembark(IPassenger character)
     {
-        if (character == null || !charactersOnboard.Contains(character))
-        {
-            Debug.LogWarning("Character not found on the ship or is null.");
-            return;
-        }
-
-        charactersOnboard.Remove(character);
-        character.DisembarkShip();
-        Debug.Log($"Removed {character.GetCharacterType()} from the ship. Total onboard: {charactersOnboard.Count}");
+        passengerManager.RemovePassenger(character);
     }
-
-    public List<IPassenger> GetCharactersOnboard() => charactersOnboard;
-
-    #endregion
-
-    #region Driving System
 
     public void PassengerDriveShip(IPassenger character)
     {
-        if (character == null) return;
-
-        currentDriver = character;
-        playerControls.Enable();
-        character.OnPossessShip(this);
-
-        // Switch to player drive state
-        playerDriveState.SetMoveInput(shipMoveInput);
-        movementStateMachine.ChangeState(playerDriveState);
-
-        // Swap to drive ship camera
-        shipCamera.Priority = 11;
-
-        // Toggle external ship graphics
-        shipGraphicManager.ToggleExternalGraphics();
+        passengerManager.SetDriver(character);
     }
 
     public void RemoveDriver()
     {
-        if (currentDriver == null) return;
+        passengerManager.RemoveDriver();
+    }
 
-        playerControls.Disable();
-        currentDriver.StopDrivingShip();
-        currentDriver = null;
+    public List<IPassenger> GetCharactersOnboard()
+    {
+        return passengerManager.CharactersOnboard;
+    }
 
-        // Switch to idle state
-        movementStateMachine.ChangeState(new IdleState());
+    // Additional convenience methods
+    public bool HasPassengerOfType(cCharacterController.CharacterType characterType)
+    {
+        return passengerManager.HasPassengerOfType(characterType);
+    }
 
-        // Swap to player focused camera
-        shipCamera.Priority = 9;
-        driverIsExiting = false;
+    public IPassenger GetCurrentDriver()
+    {
+        return passengerManager.CurrentDriver;
+    }
 
-        // Toggle internal ship graphics
-        shipGraphicManager.ToggleInternalGraphics();
+    public int GetPassengerCount()
+    {
+        return passengerManager.PassengerCount;
     }
 
     #endregion
@@ -248,6 +276,7 @@ public class cShipController : MonoBehaviour, ISpaceship
         if (boardingHatch == null) return;
 
         boardingHatchList.Add(boardingHatch);
+        boardingHatchLocalPosition = boardingHatch.transform.position - transform.position;
     }
 
     public Transform GetBoardingHatchTransform()
@@ -274,6 +303,15 @@ public class cShipController : MonoBehaviour, ISpaceship
     private void OnDestroy()
     {
         playerControls?.Dispose();
+
+        // Clean up passenger manager events
+        if (passengerManager != null)
+        {
+            passengerManager.OnPassengerBoarded -= OnPassengerBoarded;
+            passengerManager.OnPassengerDisembarked -= OnPassengerDisembarked;
+            passengerManager.OnDriverChanged -= OnDriverChanged;
+            passengerManager.OnDriverRemoved -= OnDriverRemoved;
+        }
     }
 
     #endregion

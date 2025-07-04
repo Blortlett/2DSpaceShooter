@@ -35,7 +35,7 @@ public class scrGun : MonoBehaviour, IInteractable, IProjectileWeapon
     private float mNextFireTime;
     private bool mIsReloading;
     private bool mTriggerHeld;
-    private cCharacterController mCurrentHolder;
+    private IPassenger mCurrentHolder;
     private scrProjectileManager mProjectileManager;
     private AudioSource mAudioSource;
 
@@ -55,12 +55,6 @@ public class scrGun : MonoBehaviour, IInteractable, IProjectileWeapon
         }
 
         mOriginalPosition = transform.localPosition;
-
-        // Register this weapon with the projectile manager
-        if (mProjectileManager != null)
-        {
-            mProjectileManager.AssignWeaponPool(this);
-        }
     }
 
     void Update()
@@ -89,7 +83,7 @@ public class scrGun : MonoBehaviour, IInteractable, IProjectileWeapon
     {
         if (CanInteract())
         {
-            PickUp(_Character);
+            Pickup(_Character);
         }
     }
     #endregion
@@ -126,7 +120,7 @@ public class scrGun : MonoBehaviour, IInteractable, IProjectileWeapon
     {
         if (mProjectileManager != null)
         {
-            return mProjectileManager.GetPooledProjectile(this);
+            return mProjectileManager.GetPooledProjectile(mCurrentHolder);
         }
         return null;
     }
@@ -135,7 +129,7 @@ public class scrGun : MonoBehaviour, IInteractable, IProjectileWeapon
     {
         if (mProjectileManager != null)
         {
-            mProjectileManager.ReturnProjectileToPool(this, projectile);
+            mProjectileManager.ReturnProjectileToPool(mCurrentHolder, projectile);
         }
         else
         {
@@ -145,19 +139,20 @@ public class scrGun : MonoBehaviour, IInteractable, IProjectileWeapon
     #endregion
 
     #region Gun Control Methods
-    public void PickUp(cCharacterController character)
+    public void Pickup(IPassenger _Character)
     {
-        mCurrentHolder = character;
-        transform.SetParent(character.transform);
-        // Position the gun relative to the character
-        transform.localPosition = Vector3.zero;
-        mOriginalPosition = transform.localPosition;
+        mCurrentHolder = _Character;
+        //transform.SetParent(_Character.get);
+        //// Position the gun relative to the character
+        //transform.localPosition = Vector3.zero;
+        //mOriginalPosition = transform.localPosition;
     }
 
     public void Drop()
     {
+        // Drop to ship
+        //transform.SetParent(mCurrentHolder.GetBoardedShip().transform);
         mCurrentHolder = null;
-        transform.SetParent(null);
         mTriggerHeld = false;
     }
 
@@ -263,7 +258,7 @@ public class scrGun : MonoBehaviour, IInteractable, IProjectileWeapon
     public int MagazineSize => mMagazineSize;
     public bool IsReloading => mIsReloading;
     public bool HasAmmo => mCurrentAmmo > 0;
-    public cCharacterController CurrentHolder => mCurrentHolder;
+    public IPassenger CurrentHolder => mCurrentHolder;
     #endregion
 
 

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class cShipPassengerManager
@@ -16,9 +17,13 @@ public class cShipPassengerManager
     // Reference to ship for passenger callbacks
     private ISpaceship parentShip;
 
-    public cShipPassengerManager(ISpaceship ship)
+    // ParentShip's projectile manager
+    private scrProjectileManager projectileManager;
+
+    public cShipPassengerManager(ISpaceship ship, scrProjectileManager _ProjectileManager)
     {
         parentShip = ship;
+        projectileManager = _ProjectileManager;
     }
 
     #region Public Properties
@@ -51,6 +56,12 @@ public class cShipPassengerManager
         passenger.BoardShip(parentShip);
         OnPassengerBoarded?.Invoke(passenger);
 
+        // Create bullet pool for player or enemy passengers
+        if (passenger.GetCharacterType() != cCharacterController.CharacterType.NeutralNPC)
+        {
+            projectileManager.AssignPoolForCharacter(passenger);
+        }
+
         Debug.Log($"Added {passenger.GetCharacterType()} to the ship. Total onboard: {charactersOnboard.Count}");
         return true;
     }
@@ -72,6 +83,12 @@ public class cShipPassengerManager
         charactersOnboard.Remove(passenger);
         passenger.DisembarkShip();
         OnPassengerDisembarked?.Invoke(passenger);
+
+        // Remove character's bullet pool
+        if (passenger.GetCharacterType() != cCharacterController.CharacterType.NeutralNPC)
+        {
+            projectileManager.RemoveCharacterProjectilePool(passenger);
+        }
 
         Debug.Log($"Removed {passenger.GetCharacterType()} from the ship. Total onboard: {charactersOnboard.Count}");
         return true;
