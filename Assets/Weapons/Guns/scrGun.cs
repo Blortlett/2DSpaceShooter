@@ -101,7 +101,7 @@ public class scrGun : MonoBehaviour, IInteractable, IProjectileWeapon
             // Configure projectile (assuming it has a projectile script)
             if (projectile != null)
             {
-                projectile.Initialize(direction, speed, damage, mRange, this);
+                projectile.Initialize(mCurrentHolder.GetPositionInsideShip(), direction, speed, damage, mRange, this);
             }
         }
     }

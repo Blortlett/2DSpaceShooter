@@ -295,4 +295,5 @@ public class cCharacterController : MonoBehaviour, IPassenger, IComparable<IPass
         return mCharacterType;
     }
 
+    public Vector2 GetPositionInsideShip() { return mPositionInsideShip; }
 }

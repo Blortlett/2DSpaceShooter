@@ -43,6 +43,8 @@ public interface IPassenger : IComparable<IPassenger>
     public ISpaceship GetBoardedShip();
     // Get character type
     public cCharacterController.CharacterType GetCharacterType();
+    // Get position inside ship
+    public Vector2 GetPositionInsideShip();
 }
 
 public interface IShipInteractable

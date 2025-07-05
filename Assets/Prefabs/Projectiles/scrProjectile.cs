@@ -13,7 +13,7 @@ public class scrProjectile : MonoBehaviour
     private float mSpeed;
     private float mDamage;
     private float mMaxRange;
-    private Vector2 mLocalShipPosition;
+    private Vector2 mPositionInShip;
     private IProjectileWeapon mSourceWeapon;
     private float mActiveTime;
 
@@ -33,10 +33,10 @@ public class scrProjectile : MonoBehaviour
         if (!mIsBulletActive) return;
 
         // Move Bullet
-        mLocalShipPosition += mDirection * mSpeed * Time.deltaTime;
+        mPositionInShip += mDirection * mSpeed * Time.deltaTime;
 
         // calculate and set bullet's world position
-        transform.position = _ShipWorldPosition + mLocalShipPosition;
+        transform.position = _ShipWorldPosition + mPositionInShip;
         // Lifetime timer
         mActiveTime += Time.deltaTime;
         // Check lifetime
@@ -77,7 +77,7 @@ public class scrProjectile : MonoBehaviour
     }
 
     // Fire bullet
-    public void Initialize(Vector3 direction, float speed, float damage, float maxRange, IProjectileWeapon sourceWeapon)
+    public void Initialize(Vector2 localStartPosition, Vector2 direction, float speed, float damage, float maxRange, IProjectileWeapon sourceWeapon)
     {
         mIsBulletActive = true;
         mDirection = direction.normalized;
@@ -85,9 +85,9 @@ public class scrProjectile : MonoBehaviour
         mDamage = damage;
         mMaxRange = maxRange;
         mSourceWeapon = sourceWeapon;
-        mLocalShipPosition = transform.position;
+        mPositionInShip = localStartPosition;
 
-        Debug.Log($"Bullet fired @{transform.position.x}x{transform.position.y}");
+        Debug.Log($"Bullet fired @{mPositionInShip.x}x{mPositionInShip.y}");
     }
 
     private void ReturnToPool()
