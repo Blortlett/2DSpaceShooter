@@ -8,27 +8,18 @@ public class scrProjectile : MonoBehaviour
     [SerializeField] private GameObject mHitEffect;
     [SerializeField] private float mLifetime = 5f;
 
-    private Vector3 mDirection;
+    private bool mIsBulletActive;
+    private Vector2 mDirection;
     private float mSpeed;
     private float mDamage;
     private float mMaxRange;
-    private Vector3 mStartPosition;
+    private Vector2 mLocalShipPosition;
     private IProjectileWeapon mSourceWeapon;
-    private Rigidbody2D mRigidbody; // Do we need this? Delete if can plz
     private float mActiveTime;
 
     void Awake()
     {
-        mRigidbody = GetComponent<Rigidbody2D>();
-        if (mRigidbody == null)
-        {
-            mRigidbody = gameObject.AddComponent<Rigidbody2D>();
-        }
-
-        // Set up rigidbody for projectile physics
-        mRigidbody.gravityScale = 0f; // No gravity for top-down
-        mRigidbody.drag = 0f;
-        mRigidbody.angularDrag = 0f;
+        
     }
 
     void OnEnable()
@@ -36,25 +27,27 @@ public class scrProjectile : MonoBehaviour
         mActiveTime = 0f;
     }
 
-    void Update()
+    public void UpdateBullet(Vector2 _ShipWorldPosition)
     {
-        mActiveTime += Time.deltaTime;
+        // Don't update unless bullet is active
+        if (!mIsBulletActive) return;
 
+        // Move Bullet
+        mLocalShipPosition += mDirection * mSpeed * Time.deltaTime;
+
+        // calculate and set bullet's world position
+        transform.position = _ShipWorldPosition + mLocalShipPosition;
+        // Lifetime timer
+        mActiveTime += Time.deltaTime;
         // Check lifetime
         if (mActiveTime >= mLifetime)
         {
             ReturnToPool();
             return;
         }
-
-        // Check range
-        if (mMaxRange > 0 && Vector3.Distance(mStartPosition, transform.position) >= mMaxRange)
-        {
-            ReturnToPool();
-            return;
-        }
     }
 
+    // Bullet hit object
     void OnTriggerEnter2D(Collider2D other)
     {
         Debug.Log($"Bullet Hit {other.gameObject.name}");
@@ -83,34 +76,24 @@ public class scrProjectile : MonoBehaviour
         }
     }
 
+    // Fire bullet
     public void Initialize(Vector3 direction, float speed, float damage, float maxRange, IProjectileWeapon sourceWeapon)
     {
+        mIsBulletActive = true;
         mDirection = direction.normalized;
         mSpeed = speed;
         mDamage = damage;
         mMaxRange = maxRange;
         mSourceWeapon = sourceWeapon;
-        mStartPosition = transform.position;
+        mLocalShipPosition = transform.position;
 
         Debug.Log($"Bullet fired @{transform.position.x}x{transform.position.y}");
-
-        // Set velocity
-        if (mRigidbody != null)
-        {
-            mRigidbody.velocity = mDirection * mSpeed;
-        }
-
-        // Rotate to face direction
-        if (mDirection != Vector3.zero)
-        {
-            float angle = Mathf.Atan2(mDirection.y, mDirection.x) * Mathf.Rad2Deg;
-            transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
-        }
     }
 
     private void ReturnToPool()
     {
-            gameObject.SetActive(false);
+        mIsBulletActive = false;
+        gameObject.SetActive(false);
     }
 }
 

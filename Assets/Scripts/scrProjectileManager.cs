@@ -1,8 +1,12 @@
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class scrProjectileManager : MonoBehaviour
 {
+    // Parent ship
+    [SerializeField] private cShipController mParentShip;
+
     // Projectile Prefab
     [SerializeField] private GameObject mProjectilePrefab;
     [SerializeField] private int mProjectilesPerCharacterPool = 20;
@@ -10,8 +14,16 @@ public class scrProjectileManager : MonoBehaviour
     // Projectile pools
     SortedDictionary<IPassenger, List<GameObject>> mProjectilePools = new SortedDictionary<IPassenger, List<GameObject>>();
 
-
-
+    private void Update()
+    {
+        foreach (List<GameObject> projectilePool in mProjectilePools.Values)
+        {
+            foreach(GameObject projectile in projectilePool)
+            {
+                projectile.UpdateBullet()
+            }
+        }
+    }
 
     public void AssignPoolForCharacter(IPassenger _Passenger)
     {
