@@ -11,6 +11,7 @@ public class cShipPassengerManager
     public System.Action OnDriverRemoved;
 
     // Passenger storage
+    private List<int> activePassengerIDList = new List<int>();
     private List<IPassenger> charactersOnboard = new List<IPassenger>();
     private IPassenger currentDriver;
 
@@ -56,13 +57,15 @@ public class cShipPassengerManager
         passenger.BoardShip(parentShip);
         OnPassengerBoarded?.Invoke(passenger);
 
+        passenger.Id = GeneratePassengerID();
+
         // Create bullet pool for player or enemy passengers
         if (passenger.GetCharacterType() != cCharacterController.CharacterType.NeutralNPC)
         {
             projectileManager.AssignPoolForCharacter(passenger);
         }
 
-        Debug.Log($"Added {passenger.GetCharacterType()} to the ship. Total onboard: {charactersOnboard.Count}");
+        Debug.Log($"Added {passenger.GetCharacterType()} ID-{passenger.Id} to the ship. Total onboard: {charactersOnboard.Count}");
         return true;
     }
 
@@ -218,6 +221,22 @@ public class cShipPassengerManager
         {
             AddPassenger(passenger);
         }
+    }
+
+    private int GeneratePassengerID()
+    {
+        int ID = 1;
+
+        bool validIdFound = false;
+        while (!validIdFound)
+        {
+            if (!activePassengerIDList.Contains(ID))
+            {
+                return ID;
+            }
+            ID++;
+        }
+        return -1;
     }
 
     #endregion

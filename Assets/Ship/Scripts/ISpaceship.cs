@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -27,8 +28,9 @@ public interface ISpaceship
     public void RemoveDriver();
 }
 
-public interface IPassenger
+public interface IPassenger : IComparable<IPassenger>
 {
+    int Id { get; set;  }
     // How to respond to boarding a vessel
     public void BoardShip(ISpaceship _Character);
     // How to respond once character has comandeered the vessel

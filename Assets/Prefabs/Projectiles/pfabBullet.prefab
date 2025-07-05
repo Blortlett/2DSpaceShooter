@@ -95,9 +95,9 @@ GameObject:
   - component: {fileID: 2944045457713246243}
   - component: {fileID: 4664778829208272192}
   - component: {fileID: 3703536005635805996}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: pfabBullet
-  m_TagString: Untagged
+  m_TagString: Projectile
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -165,6 +165,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d0d107724fa53c439c4442ebe2a9cb5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mTrajectory: {x: 0, y: 0}
-  mSpeed: 300
-  mAliveForTimerMax: 5
+  mTargetLayers:
+    serializedVersion: 2
+    m_Bits: 72
+  mDestroyOnHit: 1
+  mHitEffect: {fileID: 0}
+  mLifetime: 5

@@ -3,12 +3,21 @@ using System.Collections.Generic;
 using Cinemachine;
 using UnityEngine;
 
-public class cCharacterController : MonoBehaviour, IPassenger
+public class cCharacterController : MonoBehaviour, IPassenger, IComparable<IPassenger>
 {
     public enum CharacterType {
         NeutralNPC,
         Player,
         EnemyNPC,
+    }
+
+    public int Id { get; set; } // Example property for comparison
+    // Other properties and methods
+
+    public int CompareTo(IPassenger other)
+    {
+        if (other == null) return 1; // Null is considered less than any instance
+        return this.Id.CompareTo(other.Id); // Compare based on Id (or another property)
     }
 
     // Constant values
@@ -54,6 +63,8 @@ public class cCharacterController : MonoBehaviour, IPassenger
     {
         // Get Rigidbody ref
         mRigidBody = GetComponent<Rigidbody2D>();
+
+        // -= Weapon stuff =-
         // If a weapon is a child of the character on start, pick up the first weapon
         IProjectileWeapon checkHoldingWeapon = GetComponentInChildren<IProjectileWeapon>();
         if (checkHoldingWeapon != null)

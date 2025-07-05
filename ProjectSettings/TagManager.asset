@@ -9,6 +9,7 @@ TagManager:
   - PlayerInteractable
   - ShipInteractable
   - Character
+  - Projectile
   layers:
   - Default
   - TransparentFX
@@ -17,7 +18,7 @@ TagManager:
   - Water
   - UI
   - SpaceshipWall
-  - 
+  - Projectile
   - 
   - 
   - 
