@@ -245,7 +245,7 @@ public class cCharacterController : MonoBehaviour, IPassenger, IComparable<IPass
 
     void OnCollisionEnter2D(Collision2D collision)
     {
-        Debug.Log("Player touching wall!");
+        Debug.Log($"{mCharacterType} touching wall!");
         // Check if player is colliding with a wall
         if (collision.gameObject.CompareTag("Wall"))
         {

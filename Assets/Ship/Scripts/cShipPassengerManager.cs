@@ -232,6 +232,7 @@ public class cShipPassengerManager
         {
             if (!activePassengerIDList.Contains(ID))
             {
+                activePassengerIDList.Add(ID);
                 return ID;
             }
             ID++;

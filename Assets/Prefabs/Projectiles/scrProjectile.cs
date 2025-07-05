@@ -57,6 +57,8 @@ public class scrProjectile : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
+        Debug.Log($"Bullet Hit {other.gameObject.name}");
+
         // Check if we hit a valid target
         if (((1 << other.gameObject.layer) & mTargetLayers) != 0)
         {
@@ -89,6 +91,8 @@ public class scrProjectile : MonoBehaviour
         mMaxRange = maxRange;
         mSourceWeapon = sourceWeapon;
         mStartPosition = transform.position;
+
+        Debug.Log($"Bullet fired @{transform.position.x}x{transform.position.y}");
 
         // Set velocity
         if (mRigidbody != null)
