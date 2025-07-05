@@ -262,6 +262,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe60b3c370afe4e4e870d9ded69fc778, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mParentShip: {fileID: 1841408727514927904}
   mProjectilePrefab: {fileID: 9036474046976172930, guid: b7d53ca211ff62543bc04fbc4ec59483, type: 3}
   mProjectilesPerCharacterPool: 20
 --- !u!1 &1086436335329281092

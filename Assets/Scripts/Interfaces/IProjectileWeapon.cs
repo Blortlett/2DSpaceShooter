@@ -2,7 +2,7 @@ using UnityEngine;
 
 public interface IProjectileWeapon
 {
-    GameObject GetPooledProjectile();
+    scrProjectile GetPooledProjectile();
     void StartFiring();
     void StopFiring();
     string GetWeaponName();

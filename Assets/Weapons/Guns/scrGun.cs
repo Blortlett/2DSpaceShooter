@@ -91,32 +91,22 @@ public class scrGun : MonoBehaviour, IInteractable, IProjectileWeapon
     #region IWeaponProjectile Implementation
     private void FireProjectile(Vector3 position, Vector3 direction, float speed, float damage)
     {
-        GameObject projectile = GetPooledProjectile();
+        scrProjectile projectile = GetPooledProjectile();
         if (projectile != null)
         {
             projectile.transform.position = position;
             projectile.transform.right = direction; // Assuming projectiles face right
-            projectile.SetActive(true);
+            projectile.gameObject.SetActive(true);
 
             // Configure projectile (assuming it has a projectile script)
-            var projectileScript = projectile.GetComponent<scrProjectile>();
-            if (projectileScript != null)
+            if (projectile != null)
             {
-                projectileScript.Initialize(direction, speed, damage, mRange, this);
-            }
-            else
-            {
-                // Fallback: use Rigidbody2D if no custom projectile script
-                var rb = projectile.GetComponent<Rigidbody2D>();
-                if (rb != null)
-                {
-                    rb.velocity = direction * speed;
-                }
+                projectile.Initialize(direction, speed, damage, mRange, this);
             }
         }
     }
 
-    public GameObject GetPooledProjectile()
+    public scrProjectile GetPooledProjectile()
     {
         if (mProjectileManager != null)
         {
