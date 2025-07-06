@@ -5,6 +5,7 @@ using UnityEngine;
 public class cBoardingHatch : MonoBehaviour
 {
     private cShipController mShipOwner;
+    private cShipController mConnectedShip;
 
     private bool isHatchOpen = false;
     [SerializeField] private SpriteRenderer mShipHatchRenderer;
@@ -32,6 +33,18 @@ public class cBoardingHatch : MonoBehaviour
         isHatchOpen = false;
     }
 
+    // -= Setters =-
+    public void SetConnectedShip(cShipController _ConnectedShip) { mConnectedShip = _ConnectedShip; }
+    public void RemoveConnectedShip(cShipController _ConnectedShip)
+    {
+        if (mConnectedShip == _ConnectedShip)
+        {
+            mConnectedShip = null;
+        }
+    }
+
     // -= Getters =-
     public bool GetIsHatchOpen() { return isHatchOpen; }
+    public cShipController GetShipOwner() { return mShipOwner; }
+    public cShipController GetConnectedShip() { return mConnectedShip; }
 }

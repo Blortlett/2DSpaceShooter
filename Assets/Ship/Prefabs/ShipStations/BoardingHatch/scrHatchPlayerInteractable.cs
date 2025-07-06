@@ -11,6 +11,14 @@ public class scrHatchPlayerInteractable : MonoBehaviour, IInteractable
 
     public void OnInteract(cCharacterController _Character)
     {
+        // Debug output
         Debug.Log($"{_Character.GetCharacterType()} interacted with {(mHatchController.GetIsHatchOpen() ? "open" : "closed")} boarding hatch");
+
+        // Return if hatch is not connected
+        if (!mHatchController.GetIsHatchOpen()) return;
+
+        // Ship is connected, transfer player to other ship
+        mHatchController.GetShipOwner().PlayerDisembark(_Character); // Leave current ship
+        mHatchController.GetConnectedShip().AddToCharactersOnBoard(_Character); // Enter new ship
     }
 }

@@ -53,4 +53,5 @@ public interface IShipInteractable
     public bool CanInteract();
     public void OnEnterInteractRange(IShipInteractable _Ship);
     public void OnLeaveInteractRange(IShipInteractable _Ship);
+    public cShipController GetShipController();
 }
