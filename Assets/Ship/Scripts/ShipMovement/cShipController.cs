@@ -201,6 +201,11 @@ public class cShipController : MonoBehaviour, ISpaceship
     public void PlayerDisembark(IPassenger character)
     {
         passengerManager.RemovePassenger(character);
+        if (character.GetCharacterType() == cCharacterController.CharacterType.Player)
+        {
+            // Toggle external ship graphics
+            shipGraphicManager.ToggleExternalGraphics();
+        }
     }
 
     public void PassengerDriveShip(IPassenger character)
