@@ -10,7 +10,7 @@ public class scrBackgroundController : MonoBehaviour
     public class ParallaxLayer
     {
         public Renderer layerRenderer;     // Renderer of the quad using the texture
-        public Vector2 parallaxFactor;     // How much the background moves relative to the camera
+        public float parallaxFactor;     // How much the background moves relative to the camera
     }
 
     public ParallaxLayer[] layers;
@@ -23,11 +23,6 @@ public class scrBackgroundController : MonoBehaviour
             target = Camera.main.transform;
 
         lastPosition = target.position;
-
-        // set transparent material
-        Color color = layers[1].layerRenderer.material.color;
-        color.a = 0.6f; // 60% transparency
-        layers[1].layerRenderer.material.color = color;
     }
 
     void LateUpdate()
