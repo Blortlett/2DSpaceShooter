@@ -11,7 +11,14 @@ public interface IShipMovementState
 // State for player-controlled driving
 public class PlayerDriveState : IShipMovementState
 {
+    // Player INPUT variable
     private Vector2 moveInput;
+
+    // Constants
+    // Drag
+    private float HORIZONTAL_DRAG = .8f;
+    // Max Speed
+    private float MAX_SPEED = 12f;
 
     public void SetMoveInput(Vector2 input)
     {
@@ -25,11 +32,22 @@ public class PlayerDriveState : IShipMovementState
 
     public void Execute(cShipController ship)
     {
-        // Apply thrust based on player input
+        // -= Apply thrust based on player input =-
         Vector2 thrustForce = new Vector2(moveInput.y * ship.ShipAcceleration, 0);
         ship.Rigidbody.AddRelativeForce(thrustForce);
 
-        // Apply rotation based on player input
+        // Apply drag
+        Vector3 localVelocity = ship.transform.InverseTransformDirection(ship.Rigidbody.velocity);
+        localVelocity.y *= HORIZONTAL_DRAG; // Apply drag to local Y
+        ship.Rigidbody.velocity = ship.transform.TransformDirection(localVelocity);
+
+        // Clamp max velocity
+        if (ship.Rigidbody.velocity.magnitude > MAX_SPEED)
+        {
+            ship.Rigidbody.velocity = ship.Rigidbody.velocity.normalized * MAX_SPEED;
+        }
+
+        // -= Apply rotation based on player input =-
         float torqueForce = (moveInput.x * -1) * ship.ShipAngularAcceleration;
         ship.Rigidbody.AddTorque(torqueForce);
     }
@@ -78,7 +96,6 @@ public class MoveTowardsTargetState : IShipMovementState
         Vector2 toTarget = targetPosition - shipPosition;
         float distanceToTarget = toTarget.magnitude;
         Vector2 directionToTarget = toTarget.normalized;
-
 
         // Calculate desired velocity based on distance
         Vector2 desiredVelocity = CalculateDesiredVelocity(ship, toTarget, distanceToTarget, directionToTarget);

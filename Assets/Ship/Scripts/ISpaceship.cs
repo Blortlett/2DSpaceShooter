@@ -30,6 +30,7 @@ public interface ISpaceship
 
 public interface IPassenger : IComparable<IPassenger>
 {
+    // Character ID - character registered to aboard ship
     int Id { get; set;  }
     // How to respond to boarding a vessel
     public void BoardShip(ISpaceship _Character);
